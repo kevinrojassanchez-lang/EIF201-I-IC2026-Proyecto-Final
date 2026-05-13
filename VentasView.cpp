@@ -38,9 +38,7 @@ namespace FarmaSystem {
         spinCantidadVenta->setValue(0);
         spinCantidadVenta->setCorrectionMode(QAbstractSpinBox::CorrectToNearestValue);
 
-        comboClientesVenta->setFixedHeight(32);
-        comboMedicamentosVenta->setFixedHeight(32);
-        spinCantidadVenta->setFixedHeight(32);
+       
 
         ui.aplicarBordePulsante(comboClientesVenta);
         ui.aplicarBordePulsante(comboMedicamentosVenta);
@@ -220,9 +218,7 @@ namespace FarmaSystem {
 
             lblSubtotalVenta->setText("Subtotal: CRC 0.00");
             lblTotalVenta->setText("Total: CRC 0.00");
-            checkRecetaVenta->setChecked(false);
-            checkRecetaVenta->setEnabled(false);
-            checkRecetaVenta->setVisible(false);
+			resetEstadoReceta();
         }
     }
 
