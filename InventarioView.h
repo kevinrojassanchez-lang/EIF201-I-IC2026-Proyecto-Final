@@ -28,7 +28,6 @@ namespace FarmaSystem {
         void construirUI();
         void llenarTablaUI();
         void agregarDatos(Medicamento* medicamento);
-        QString getEstiloBotones() const;
 
     protected:
         bool eventFilter(QObject* obj, QEvent* event) override;

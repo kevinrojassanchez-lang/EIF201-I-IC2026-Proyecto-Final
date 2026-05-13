@@ -4,9 +4,9 @@
 #include <QLabel>
 #include <QMessageBox>
 #include <QDialog>
-#include <QGraphicsDropShadowEffect>
 
 #include "ClientesView.h"
+#include "RecursosUI.h"
 
 
 namespace FarmaSystem {
@@ -20,59 +20,34 @@ namespace FarmaSystem {
     // UI
     void ClientesView::construirUI() {
 
-		// Crear espacios 
+        RecursosUI ui;
+
+        // Crear layouts
         QVBoxLayout* layout = new QVBoxLayout(this);
         QHBoxLayout* layoutBotones = new QHBoxLayout();
         QHBoxLayout* layoutBusqueda = new QHBoxLayout();
 
-		// Diseno titulo
+        // Titulo
         QLabel* tituloSeccion = new QLabel("Gestion de Clientes");
-        tituloSeccion->setStyleSheet("font-weight: bold; font-size: 20px; color: white; letter-spacing: 1px;");
-        QColor verdeNeon("#39FF14");
-        QColor rojoNeon("#FF3131");
+        ui.aplicarTituloNeon(tituloSeccion);
 
-        QGraphicsDropShadowEffect* neonEfecto = new QGraphicsDropShadowEffect();
-
-        neonEfecto->setBlurRadius(35);       
-        neonEfecto->setColor(QColor(57, 255, 20));
-        neonEfecto->setOffset(0, 0);       
-
-        tituloSeccion->setGraphicsEffect(neonEfecto);
-
-        QVariantAnimation* animacion = new QVariantAnimation(this);
-
-        animacion->setDuration(1000); // 1 segundos por ciclo
-        animacion->setStartValue(verdeNeon);
-        animacion->setEndValue(rojoNeon);
-        animacion->setLoopCount(-1);
-
-        // Diseno busqueda
+		// Buscador
         textoBuscarCliente = new QLineEdit();
         textoBuscarCliente->setPlaceholderText("🔍 Buscar cedula...");
         textoBuscarCliente->setMaximumWidth(250);
         textoBuscarCliente->installEventFilter(this);
-        textoBuscarCliente->setStyleSheet(
-            "QLineEdit {"
-            "  background-color: #2b2b2b;" 
-            "  color: #e0e0e0;"             
-            "  border: 2px solid #ff4d4d;"  
-            "  border-radius: 8px;"        
-            "  padding: 5px 10px;"
-            "}"
 
-            "QLineEdit:focus {"
-            "  border: 2px solid #39FF14;"  
-            "  background-color: #333333;"  
-            "}"
-        );
+        ui.aplicarEstiloBuscador(textoBuscarCliente);
 
-		layoutBusqueda->addWidget(tituloSeccion);
+		// comparten espacio en el mismo layout
+        layoutBusqueda->addWidget(tituloSeccion);
         layoutBusqueda->addStretch();
         layoutBusqueda->addWidget(new QLabel("Buscar:"));
         layoutBusqueda->addWidget(textoBuscarCliente);
-        
-        // Diseno Tabla
+
+		// Tabla 
         tabla = new QTableWidget;
+
         tabla->setColumnCount(4);
         tabla->setHorizontalHeaderLabels({ "ID", "Nombre", "Cedula", "Fidelidad (5%)" });
         tabla->verticalHeader()->setVisible(false);
@@ -83,37 +58,9 @@ namespace FarmaSystem {
         tabla->setFocusPolicy(Qt::StrongFocus);
         tabla->setTabKeyNavigation(false);
         tabla->setShowGrid(true);
-        tabla->setStyleSheet(
-            "QTableWidget {"
-            "  background-color: #2b2b2b;" 
-            "  color: #e0e0e0;"           
-            "  gridline-color: #ff4d4d;" 
-            "  outline: 0;"
-            "  border: 2px solid #ff4d4d;" // borde exterior en rojo pastel
-            "  border - radius: 5px;"
-            "}"
-            
-            "QTableWidget:focus {"
-			"  border: 2px solid #39FF14;" 
-            "}"
 
-            "QTableWidget::item {"
-            "border: none;"
-            "padding: 6px;"
-            "}"
+        ui.aplicarEstiloTabla(tabla);
 
-            "QTableWidget::item:selected {"
-            "background-color: #3399ff;"
-            "color: #2b2b2b;"
-            "}"
-
-            "QTableWidget::item:focus {"
-            "outline: none;"
-            "border: none;"
-            "}"
-        );
-
-        // Diseno Botones
         botonEliminar = new QPushButton("Eliminar");
         botonFidelidad = new QPushButton("Fidelidad");
         QPushButton* botonRegistrar = new QPushButton("Registrar");
@@ -121,74 +68,38 @@ namespace FarmaSystem {
 
         botonEliminar->setEnabled(false);
         botonFidelidad->setEnabled(false);
+
         botonRegistrar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         botonEliminar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         botonFidelidad->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         botonVolver->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
-        layoutBotones->addWidget(botonRegistrar,1);
-        layoutBotones->addWidget(botonEliminar,1);
-        layoutBotones->addWidget(botonFidelidad,1);
-        layoutBotones->addWidget(botonVolver,1);
+        layoutBotones->addWidget(botonRegistrar, 1);
+        layoutBotones->addWidget(botonEliminar, 1);
+        layoutBotones->addWidget(botonFidelidad, 1);
+        layoutBotones->addWidget(botonVolver, 1);
         layoutBotones->addStretch();
 
-        QString estiloBotones =
-            "QPushButton {"
-            "  background-color: #2b2b2b;"     
-            "  color: #ff4d4d;"                 
-            "  border: 2px solid #ff4d4d;"    //Rojo
-            "  border-radius: 10px;"
-            "  padding: 8px 16px;"
-            "  font-weight: bold;"
-            "  font-size: 13px;"
-            "}"
+        ui.aplicarEstiloBoton(botonRegistrar);
+        ui.aplicarEstiloBoton(botonEliminar);
+        ui.aplicarEstiloBoton(botonFidelidad);
+        ui.aplicarEstiloBoton(botonVolver);
 
-            // Al pasar el mouse
-            "QPushButton:hover {"
-            "  background-color: #323232;"
-            "  color: #39FF14;"                 // Verde 
-            "  border: 2px solid #39FF14;"
-            "}"
-
-            // Al hacer clic
-            "QPushButton:pressed {"
-            "  background-color: #4d0000;"      // Fondo rojo oscuro
-            "  color: #ff4d4d;"                 // Texto rojo
-            "  border: 2px solid #ff4d4d;"
-            "}"
-
-            // Cuando el boton esta bloqueado 
-            "QPushButton:disabled {"
-			"  background-color: #1a1a1a;"      
-			"  color: #444444;"                 // gris 
-            "  border: 2px solid #333333;"
-            "}";
-
-        botonRegistrar->setStyleSheet(estiloBotones);
-        botonEliminar->setStyleSheet(estiloBotones);
-        botonFidelidad->setStyleSheet(estiloBotones);
-        botonVolver->setStyleSheet(estiloBotones);
-
-        // Orden final en pantalla
+        // Orden en pantalla
         layout->addLayout(layoutBusqueda);
         layout->addWidget(tabla);
         layout->addLayout(layoutBotones);
 
-        // Conexiones
         connect(botonRegistrar, &QPushButton::clicked, this, &ClientesView::abrirDialogRegistrarCliente);
         connect(botonEliminar, &QPushButton::clicked, this, &ClientesView::eliminarClienteSeleccionado);
         connect(botonFidelidad, &QPushButton::clicked, this, &ClientesView::toggleFidelidadCliente);
         connect(botonVolver, &QPushButton::clicked, this, &ClientesView::volverAlMenu);
         connect(textoBuscarCliente, &QLineEdit::textChanged, this, &ClientesView::filtrarClientes);
         connect(tabla, &QTableWidget::itemSelectionChanged, this, [=]() { textoBuscarCliente->deselect(); });
-        connect(tabla, &QTableWidget::itemSelectionChanged, this, &ClientesView::actualizarEstadoBotones);
-        connect(animacion, &QVariantAnimation::valueChanged, [=](const QVariant& value) { neonEfecto->setColor(value.value<QColor>()); });
+        connect(tabla, &QTableWidget::itemSelectionChanged,this, &ClientesView::actualizarEstadoBotones);
 
         QTimer::singleShot(0, this, [=]() { this->setFocus(); });
-
-        animacion->start();
-
-    } // Fin UI
+    }
 
     void ClientesView::llenarTablaUI() {
 
@@ -266,7 +177,7 @@ namespace FarmaSystem {
 
             if (resultado == 0) {
 
-                QMessageBox::information(&dialog, "Exito", "Cliente registrado.");
+                QMessageBox::information(&dialog, "FarmaSystem", "Cliente registrado.");
                 llenarTablaUI();
                 emit datosActualizados();
                 dialog.accept();
@@ -274,7 +185,7 @@ namespace FarmaSystem {
 
             else {
 
-                QMessageBox::warning(&dialog, "Error", resultado == 2 ? "Cedula Existente." : "Campos vacios.");
+                QMessageBox::warning(&dialog, "FarmaSystem", resultado == 2 ? "Cedula Existente." : "Campos vacios.");
             }
         });
         
@@ -327,17 +238,17 @@ namespace FarmaSystem {
         QString cedula = QString::fromStdString(cliente->getCedula());
         QString estado = cliente->getTarjeta() ? "ACTIVA" : "INACTIVA";
 
-		// Crear celdas para cada fila 
-        int celda = tabla->rowCount();
+		// Crear  fila 
+        int fila = tabla->rowCount();
 
         // Insertar Fila
-        tabla->insertRow(celda);
+        tabla->insertRow(fila);
 
-		// Agregar dato a cada celda de la fila
-        tabla->setItem(celda, 0, new QTableWidgetItem(id));
-        tabla->setItem(celda, 1, new QTableWidgetItem(nombre));
-        tabla->setItem(celda, 2, new QTableWidgetItem(cedula));
-        tabla->setItem(celda, 3, new QTableWidgetItem(estado));
+		// Agregar celda de la fila
+        tabla->setItem(fila, 0, new QTableWidgetItem(id));
+        tabla->setItem(fila, 1, new QTableWidgetItem(nombre));
+        tabla->setItem(fila, 2, new QTableWidgetItem(cedula));
+        tabla->setItem(fila, 3, new QTableWidgetItem(estado));
     }
 
     void FarmaSystem::ClientesView::showEvent(QShowEvent* event) {
@@ -348,8 +259,9 @@ namespace FarmaSystem {
         textoBuscarCliente->clear();
         this->setFocus();
 
-        // Color del Grid
-        tabla->setStyleSheet(tabla->styleSheet() + "QTableWidget { gridline-color: #ff4d4d; }");
+        RecursosUI ui;
+
+        ui.cambiarColorGrid(tabla, false);
 
         actualizarEstadoBotones(); // Asegura que los botones se bloqueen
     }
@@ -361,12 +273,13 @@ namespace FarmaSystem {
 
         botonEliminar->setEnabled(tieneSeleccion);
         botonFidelidad->setEnabled(tieneSeleccion); 
+        RecursosUI ui;
 
         if (tieneSeleccion) {
-            tabla->setStyleSheet(tabla->styleSheet() + "QTableWidget { gridline-color: #39FF14; }");
+            ui.cambiarColorGrid(tabla, true);
         }
         else {
-            tabla->setStyleSheet(tabla->styleSheet() + "QTableWidget { gridline-color: #ff4d4d; }");
+            ui.cambiarColorGrid(tabla, false);
         }
     }
 }

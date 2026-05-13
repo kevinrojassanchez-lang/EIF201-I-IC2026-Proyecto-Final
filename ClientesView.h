@@ -7,7 +7,6 @@
 #include <QEvent> 
 #include <QTimer>
 #include <QPushButton>
-#include <QVariantAnimation>
 
 #include "SistemaFarmacia.h"
 

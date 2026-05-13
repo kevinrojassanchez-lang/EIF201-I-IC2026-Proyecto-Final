@@ -41,6 +41,7 @@ namespace FarmaSystem {
     }
 
     QWidget* MainWindow::crearMenuPrincipal() {
+
         QWidget* widget = new QWidget;
         QVBoxLayout* layout = new QVBoxLayout(widget);
 

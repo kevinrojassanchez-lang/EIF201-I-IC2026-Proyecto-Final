@@ -164,6 +164,7 @@
     <ClCompile Include="MedicamentoControlado.cpp" />
     <ClCompile Include="MedicamentoGenerico.cpp" />
     <ClCompile Include="MedicamentoMarca.cpp" />
+    <ClCompile Include="RecursosUI.cpp" />
     <ClCompile Include="SistemaFarmacia.cpp" />
     <ClCompile Include="ClientesView.cpp" />
     <ClCompile Include="Venta.cpp" />
@@ -180,6 +181,7 @@
     <ClInclude Include="MedicamentoControlado.h" />
     <ClInclude Include="MedicamentoGenerico.h" />
     <ClInclude Include="MedicamentoMarca.h" />
+    <ClInclude Include="RecursosUI.h" />
     <ClInclude Include="SistemaFarmacia.h" />
     <ClInclude Include="Venta.h" />
   </ItemGroup>

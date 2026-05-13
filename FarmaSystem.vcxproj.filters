@@ -1,0 +1,103 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="CategoriasView.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="Cliente.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="ClientesView.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="InventarioView.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="MainWindow.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="Medicamento.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="MedicamentoControlado.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="MedicamentoGenerico.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="MedicamentoMarca.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="SistemaFarmacia.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="Venta.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="VentasView.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="RecursosUI.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Cliente.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Medicamento.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="MedicamentoControlado.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="MedicamentoGenerico.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="MedicamentoMarca.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="SistemaFarmacia.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Venta.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="RecursosUI.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="CategoriasView.h">
+      <Filter>Header files</Filter>
+    </QtMoc>
+    <QtMoc Include="ClientesView.h">
+      <Filter>Header files</Filter>
+    </QtMoc>
+    <QtMoc Include="InventarioView.h">
+      <Filter>Header files</Filter>
+    </QtMoc>
+    <QtMoc Include="MainWindow.h">
+      <Filter>Header files</Filter>
+    </QtMoc>
+    <QtMoc Include="VentasView.h">
+      <Filter>Header files</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="Header files">
+      <UniqueIdentifier>{dcda8a45-2d32-49e9-9d80-0b9bd4cfc082}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Cpp files">
+      <UniqueIdentifier>{7c80ff9f-0639-4491-bff2-f8ba7c103b22}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint">
+      <Filter>Cpp files</Filter>
+    </None>
+  </ItemGroup>
+</Project>

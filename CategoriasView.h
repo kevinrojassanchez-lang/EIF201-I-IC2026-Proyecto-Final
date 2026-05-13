@@ -31,12 +31,11 @@ namespace FarmaSystem {
         QTextEdit* infoCategoria;
         QTimer* timerBorde;
         QStringList listaColores;
-        QString getEstiloBotones() const;
         int colorActualIdx = 0;
         void animarBorde();
 
         // Metodos de logica
-        void setupUI();
+        void construirUI();
         void mostrarCategoriaSeleccionada();
         void mostrarMedicamentoCategoria();
         void actualizarVistaCategorias();

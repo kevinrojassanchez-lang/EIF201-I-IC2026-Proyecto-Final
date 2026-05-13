@@ -60,6 +60,4 @@ namespace FarmaSystem {
     Venta::~Venta() {}
         // NO eliminar medicamentoVendido
         // El sistema de inventario es el dueño de ese objeto
-    
-
 }

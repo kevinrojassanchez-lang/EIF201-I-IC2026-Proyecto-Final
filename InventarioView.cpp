@@ -1,8 +1,6 @@
 ﻿#include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QHeaderView>
-#include <QGraphicsDropShadowEffect>
-#include <QVariantAnimation>
 #include <QDialog>
 #include <QSpinBox>
 #include <QDoubleSpinBox>
@@ -12,6 +10,7 @@
 #include <QInputDialog>
 #include <QTextedit>
 
+#include "RecursosUI.h"
 #include "InventarioView.h"
 
 namespace FarmaSystem {
@@ -22,47 +21,26 @@ namespace FarmaSystem {
     }
 
     void InventarioView::construirUI() {
+
+        RecursosUI ui;
+
         // Crear espacios
         QVBoxLayout* layout = new QVBoxLayout(this);
         QHBoxLayout* layoutBusqueda = new QHBoxLayout();
         QHBoxLayout* botonesLayout = new QHBoxLayout();
 
         // Diseno titulo
-        tituloSeccion = new QLabel("Gestion de Inventario");
-        tituloSeccion->setStyleSheet("font-weight: bold; font-size: 20px; color: white; letter-spacing: 1px;");
-        QGraphicsDropShadowEffect* neonEfecto = new QGraphicsDropShadowEffect();
-        neonEfecto->setBlurRadius(35);
-        neonEfecto->setColor(QColor(57, 255, 20)); // verde inicial
-        neonEfecto->setOffset(0, 0);
+        tituloSeccion = new QLabel("Gestion de Medicamentos");
 
-        tituloSeccion->setGraphicsEffect(neonEfecto);
-
-        QVariantAnimation* animacion = new QVariantAnimation(this);
-
-        animacion->setDuration(1000);
-        animacion->setStartValue(QColor(57, 255, 20));
-        animacion->setEndValue(QColor(255, 49, 49));
-        animacion->setLoopCount(-1);
+        ui.aplicarTituloNeon(tituloSeccion);
 
         // Diseno buscador
         textoBuscarMedicamento = new QLineEdit();
         textoBuscarMedicamento->setPlaceholderText("🔍 Buscar por nombre o ID...");
         textoBuscarMedicamento->setMaximumWidth(250);
 		textoBuscarMedicamento->installEventFilter(this);
-        textoBuscarMedicamento->setStyleSheet(
-            "QLineEdit {"
-            "  background-color: #2b2b2b;"
-            "  color: #e0e0e0;"
-            "  border: 2px solid #ff4d4d;"
-            "  border-radius: 8px;"
-            "  padding: 5px 10px;"
-            "}"
 
-            "QLineEdit:focus {"
-            "  border: 2px solid #39FF14;"
-            "  background-color: #333333;"
-            "}"
-        );
+        ui.aplicarEstiloBuscador(textoBuscarMedicamento);
 
         layoutBusqueda->addWidget(tituloSeccion);
         layoutBusqueda->addStretch();
@@ -71,6 +49,7 @@ namespace FarmaSystem {
 
         // Diseno tabla
         tabla = new QTableWidget;
+
 		tabla->setColumnCount(5);
         tabla->setHorizontalHeaderLabels({ "ID", "Nombre", "Categoria", "Stock", "Precio" });
         tabla->verticalHeader()->setVisible(false);
@@ -81,35 +60,8 @@ namespace FarmaSystem {
         tabla->setFocusPolicy(Qt::StrongFocus);
         tabla->setTabKeyNavigation(false);
         tabla->setShowGrid(true);
-        tabla->setStyleSheet(
-            "QTableWidget {"
-            "  background-color: #2b2b2b;"
-            "  color: #e0e0e0;"
-            "  gridline-color: #ff4d4d;"
-            "  outline: 0;"
-            "  border: 2px solid #ff4d4d;" // borde exterior en rojo pastel
-            "  border-radius: 5px;"
-            "}"
 
-            "QTableWidget:focus {"
-			"  border: 2px solid #39FF14;"   // verde al enfocar
-            "}"
-
-            "QTableWidget::item {"
-            "border: none;"
-            "padding: 6px;"
-            "}"
-
-            "QTableWidget::item:selected {"
-            "background-color: #3399ff;"
-            "color: #2b2b2b;"
-            "}"
-
-            "QTableWidget::item:focus {"
-            "outline: none;"
-            "border: none;"
-            "}"
-        );
+        ui.aplicarEstiloTabla(tabla);
 
         // Diseno botones
         botonEliminar = new QPushButton("Eliminar");
@@ -118,11 +70,11 @@ namespace FarmaSystem {
         QPushButton* botonRegistrar = new QPushButton("Registrar");
         QPushButton* botonVolver = new QPushButton("Volver");
 
-        botonEliminar->setStyleSheet(getEstiloBotones());
-        botonStock->setStyleSheet(getEstiloBotones());
-        botonDetalles->setStyleSheet(getEstiloBotones());
-        botonRegistrar->setStyleSheet(getEstiloBotones());
-        botonVolver->setStyleSheet(getEstiloBotones());
+        ui.aplicarEstiloBoton(botonEliminar);
+        ui.aplicarEstiloBoton(botonStock);
+        ui.aplicarEstiloBoton(botonDetalles);
+        ui.aplicarEstiloBoton(botonRegistrar);
+        ui.aplicarEstiloBoton(botonVolver);
 
         botonesLayout->addWidget(botonRegistrar);
         botonesLayout->addWidget(botonStock);
@@ -142,11 +94,10 @@ namespace FarmaSystem {
         connect(botonStock, &QPushButton::clicked, this, &InventarioView::actualizarStockMedicamento);
         connect(botonDetalles, &QPushButton::clicked, this, &InventarioView::mostrarDetallesSeleccionado);
         connect(botonVolver, &QPushButton::clicked, this, &InventarioView::volverAlMenu);
-        connect(animacion, &QVariantAnimation::valueChanged, [=](const QVariant& v) { neonEfecto->setColor(v.value<QColor>()); });
+       
+        QTimer::singleShot(0, this, [=]() { this->setFocus(); }); //limpiar el foco al terminar de construir UI
 
-		QTimer::singleShot(0, this, [=]() { this->setFocus(); }); //limpiar el foco al terminar de construir UI
-
-        animacion->start();
+    
 
     } // Fin UI
 
@@ -169,6 +120,8 @@ namespace FarmaSystem {
 
     void InventarioView::actualizarEstadoBotones() {
 
+        RecursosUI ui;
+
         bool tieneSeleccion = !tabla->selectedItems().isEmpty();
 
         botonEliminar->setEnabled(tieneSeleccion);
@@ -178,15 +131,17 @@ namespace FarmaSystem {
         // efecto visual del grid al seleccionar
         if (tieneSeleccion) {
 
-            tabla->setStyleSheet(tabla->styleSheet() + "QTableWidget { gridline-color: #39FF14; }");
+            ui.cambiarColorGrid(tabla, true);
         }
         else {
 
-            tabla->setStyleSheet(tabla->styleSheet() + "QTableWidget { gridline-color: #ff4d4d; }");
+            ui.cambiarColorGrid(tabla, false);
         }
     }
 
     void InventarioView::showEvent(QShowEvent* event) {
+
+        RecursosUI ui;
 
         QWidget::showEvent(event); // Llama a la implementacion base
         tabla->clearSelection();
@@ -195,12 +150,13 @@ namespace FarmaSystem {
         this->setFocus();
 
         // Color del grid
-        tabla->setStyleSheet(tabla->styleSheet() + "QTableWidget { gridline-color: #ff4d4d; }");
+        ui.cambiarColorGrid(tabla, false);
 
         actualizarEstadoBotones(); // Asegura que los botones se bloqueen
     }
 
     void InventarioView::abrirDialogRegistrarMedicamento() {
+
         QDialog dialog(this);
         dialog.setWindowTitle("FarmaSystem");
         dialog.setMinimumWidth(400);
@@ -208,25 +164,25 @@ namespace FarmaSystem {
         QVBoxLayout* layout = new QVBoxLayout(&dialog);
 
         // campos comunes
-        QLineEdit* escribirNombre = new QLineEdit();
-        escribirNombre->setPlaceholderText("Nombre del medicamento");
+        QLineEdit* espacioNombre = new QLineEdit();
+        espacioNombre->setPlaceholderText("Nombre del medicamento");
 
-        QDoubleSpinBox* spinPrecio = new QDoubleSpinBox();
-        spinPrecio->setRange(0, 1000000);
-        spinPrecio->setPrefix("Precio: CRC ");
+        QDoubleSpinBox* espacioPrecio = new QDoubleSpinBox();
+        espacioPrecio->setRange(0, 1000000);
+        espacioPrecio->setPrefix("Precio: CRC ");
 
-        QSpinBox* spinStock = new QSpinBox();
-        spinStock->setRange(0, 1000);
-        spinStock->setPrefix("Stock: ");
+        QSpinBox* espacioStock = new QSpinBox();
+        espacioStock->setRange(0, 1000);
+        espacioStock->setPrefix("Stock: ");
 
-        QComboBox* comboTipo = new QComboBox();
-        comboTipo->addItems({ "Generico", "De Marca", "Controlado" });
+        QComboBox* espacioTipo = new QComboBox();
+        espacioTipo->addItems({ "Generico", "De Marca", "Controlado" });
 
         // Campos dinamicos
         QLabel* labelDinamico = new QLabel("Principio Activo:");
         QLineEdit* editDinamico = new QLineEdit();
         QCheckBox* checkPromo = new QCheckBox("Aplicar Promocion (15% desc)");
-        QLabel* labelNivel = new QLabel("Nivel de Control (1-4):");
+        QLabel* labelNivel = new QLabel("Nivel de Control [1-4]:");
         QSpinBox* spinNivel = new QSpinBox();
         spinNivel->setRange(1, 4);
 
@@ -237,11 +193,11 @@ namespace FarmaSystem {
 
         // Construcion
         layout->addWidget(new QLabel("<b>Datos Basicos</b>"));
-        layout->addWidget(escribirNombre);
-        layout->addWidget(spinPrecio);
-        layout->addWidget(spinStock);
+        layout->addWidget(espacioNombre);
+        layout->addWidget(espacioPrecio);
+        layout->addWidget(espacioStock);
         layout->addWidget(new QLabel("<b>Categoria</b>"));
-        layout->addWidget(comboTipo);
+        layout->addWidget(espacioTipo);
         layout->addWidget(checkPromo);
         layout->addWidget(labelDinamico);
         layout->addWidget(editDinamico);
@@ -252,13 +208,15 @@ namespace FarmaSystem {
         layout->addWidget(botonGuardar);
 
         // Campos Dinamicos
-        connect(comboTipo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int index) {
+        connect(espacioTipo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int index) {
+
             // Control de visibilidad base
             checkPromo->setVisible(index == 1);
             labelNivel->setVisible(index == 2);
             spinNivel->setVisible(index == 2);
 
             switch (index) {
+
             case 0: // Generico
                 labelDinamico->setText("Principio Activo:");
                 editDinamico->setPlaceholderText("Ej: Ibuprofeno");
@@ -276,9 +234,10 @@ namespace FarmaSystem {
         });
 
         connect(botonGuardar, &QPushButton::clicked, [&]() {
-            std::string nombre = escribirNombre->text().trimmed().toStdString();
-            double pre = spinPrecio->value();
-            int sto = spinStock->value();
+
+            std::string nombre = espacioNombre->text().trimmed().toStdString();
+            double pre = espacioPrecio->value();
+            int stock = espacioStock->value();
             std::string infoExtra = editDinamico->text().trimmed().toStdString();
             int res = -1;
 
@@ -288,30 +247,33 @@ namespace FarmaSystem {
             }
 
             // Switch para decidir metodo del sistema a llamar
-            switch (comboTipo->currentIndex()) {
+            switch (espacioTipo->currentIndex()) {
+
             case 0: // Generico
-                res = sistema->registrarGenerico(nombre, pre, sto, infoExtra);
+                res = sistema->registrarGenerico(nombre, pre, stock, infoExtra);
                 break;
 
             case 1: // Marca
-                res = sistema->registrarMarca(nombre, pre, sto, infoExtra, checkPromo->isChecked());
+                res = sistema->registrarMarca(nombre, pre, stock, infoExtra, checkPromo->isChecked());
                 break;
 
             case 2: // Controlado
             {
                 bool ok;
                 double dosis = QString::fromStdString(infoExtra).toDouble(&ok);
+
                 if (!ok || dosis <= 0) {
                     QMessageBox::warning(&dialog, "Error", "Dosis invalida.");
                     return;
                 }
-                res = sistema->registrarControlado(nombre, pre, sto, spinNivel->value(), dosis);
+                res = sistema->registrarControlado(nombre, pre, stock, spinNivel->value(), dosis);
             }
             break;
             }
 
             // Switch para manejar la respuesta del sistema
             switch (res) {
+
             case 0:
                 QMessageBox::information(&dialog, "FarmaSystem", "Registrado correctamente.");
                 llenarTablaUI();
@@ -400,17 +362,22 @@ namespace FarmaSystem {
     }
 
     void InventarioView::mostrarDetallesSeleccionado() {
-        if (tabla->selectedItems().isEmpty()) return;
+
+		RecursosUI ui;
+
+        if (tabla->selectedItems().isEmpty()) { return; }
 
         int filaActual = tabla->currentRow();
         int id = tabla->item(filaActual, 0)->text().toInt();
         Medicamento* medicamento = sistema->buscarMedicamentoPorID(id);
-        if (!medicamento) return;
+
+        if (medicamento == nullptr) { return; }
 
         QDialog dialog(this);
         dialog.setWindowTitle("FarmaSystem");
         dialog.setMinimumWidth(400);
-        dialog.setStyleSheet("background-color: #2b2b2b; color: #e0e0e0;"); // Fondo oscuro
+
+        ui.aplicarEstiloDialogo(&dialog);
 
         QVBoxLayout* layout = new QVBoxLayout(&dialog);
 
@@ -427,10 +394,13 @@ namespace FarmaSystem {
         QTextEdit* escritura = new QTextEdit();
         escritura->setReadOnly(true);
         escritura->setText(info);
-        escritura->setStyleSheet("background-color: #1a1a1a; color: #b2fab4; border: 1px solid #39FF14; font-family: 'Courier New';");
+
+        ui.aplicarEstiloTexto(escritura);
 
         QPushButton* botonCerrar = new QPushButton("Cerrar");
-        botonCerrar->setStyleSheet(getEstiloBotones());
+
+		ui.aplicarEstiloBoton(botonCerrar);
+
         connect(botonCerrar, &QPushButton::clicked, &dialog, &QDialog::accept);
 
         // Orden en pantalla
@@ -475,37 +445,4 @@ namespace FarmaSystem {
         return QWidget::eventFilter(obj, event);
     }
 
-    QString FarmaSystem::InventarioView::getEstiloBotones() const {
-		    // Al estar en normal
-        return "QPushButton {"
-            "  background-color: #2b2b2b;"
-            "  color: #ff4d4d;"
-            "  border: 2px solid #ff4d4d;"    //Rojo
-            "  border-radius: 10px;"
-            "  padding: 8px 16px;"
-            "  font-weight: bold;"
-            "  font-size: 13px;"
-            "}"
-
-            // Al pasar el mouse
-            "QPushButton:hover {"
-            "  background-color: #323232;"
-            "  color: #39FF14;"                  // Verde 
-            "  border: 2px solid #39FF14;"
-            "}"
-
-            // Al hacer un clic
-            "QPushButton:pressed {"
-            "  background-color: #4d0000;"      //  rojo oscuro
-            "  color: #ff4d4d;"                 //  rojo
-            "  border: 2px solid #ff4d4d;"
-            "}"
-
-            // Cuando el boton esta bloqueado 
-            "QPushButton:disabled {"
-            "  background-color: #1a1a1a;"
-            "  color: #444444;"                 // gris 
-            "  border: 2px solid #333333;"
-            "}";
-    }
 }

@@ -12,10 +12,10 @@ namespace FarmaSystem {
     { return (getPrecio() * cantidad) * 0.90; }
 
     std::string MedicamentoGenerico::getAdvertencia() const 
-    { return "Medicamento generico: misma eficacia a menor costo."; }
+    { return "Medicamento Generico: misma eficacia a menor costo."; }
 
     std::string MedicamentoGenerico::getInfoPrecio() const 
-    { return "Descuento fijo: 10%"; }
+    { return "Descuento Fijo: 10%"; }
 
     std::string MedicamentoGenerico::mostrar() const
     { return Medicamento::mostrar() + " | Principio Activo: " + principioActivo; }
