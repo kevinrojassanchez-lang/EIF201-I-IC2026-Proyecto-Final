@@ -1,279 +1,330 @@
 ﻿#include <QVBoxLayout>
-#include <QHeaderView>
+#include <QGridLayout>
 #include <QMessageBox>
 #include <QDate>
-#include "RecursosUI.h"
+#include <QHeaderView>
+#include <QLineEdit>
 
-#include "SistemaFarmacia.h"
 #include "VentasView.h"
+#include "SistemaFarmacia.h"
+#include "RecursosUI.h"
 
 namespace FarmaSystem {
 
     VentasView::VentasView(SistemaFarmacia* sSistema, QWidget* parent) : QWidget(parent), sistema(sSistema) {
 
         construirUI();
+        actualizarVista();
     }
 
-    void VentasView::construirUI()
-    {
+    void VentasView::construirUI() {
+
         RecursosUI ui;
 
         QGridLayout* layout = new QGridLayout(this);
-        ui.aplicarEstiloVentana(this);
 
-        layout->setContentsMargins(30, 20, 30, 30);
-        layout->setSpacing(15);
-
-        // Titulo
         QLabel* titulo = new QLabel("Modulo de Ventas");
         titulo->setAlignment(Qt::AlignCenter);
         ui.aplicarTituloNeon(titulo);
 
-		// Controles de seleccion y entrada
         comboClientesVenta = new QComboBox(this);
         comboMedicamentosVenta = new QComboBox(this);
 
         spinCantidadVenta = new QSpinBox(this);
         spinCantidadVenta->setRange(0, 1000);
-        spinCantidadVenta->setValue(0);
-        spinCantidadVenta->setCorrectionMode(QAbstractSpinBox::CorrectToNearestValue);
 
-       
+        checkRecetaVenta = new QCheckBox("Receta medica");
 
-        ui.aplicarBordePulsante(comboClientesVenta);
-        ui.aplicarBordePulsante(comboMedicamentosVenta);
-        ui.aplicarBordePulsante(spinCantidadVenta);
-
-		// Labels de subtotal y total con efecto neon
         lblSubtotalVenta = new QLabel("Subtotal: CRC 0.00");
         lblTotalVenta = new QLabel("Total: CRC 0.00");
+        lblTotalFiltro = new QLabel("Total filtro: CRC 0.00");
 
-        lblSubtotalVenta->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-        lblTotalVenta->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
-
-        ui.aplicarLabelSubtotal(lblSubtotalVenta);
-        ui.aplicarLabelTotal(lblTotalVenta);
-        ui.aplicarLabelNeon(lblSubtotalVenta, "#39FF14", 20);
-        ui.aplicarLabelNeon(lblTotalVenta, "#F9FF00", 20);
-
-		// Otros controles
-        checkRecetaVenta = new QCheckBox("El cliente presento receta medica");
-
-        ui.aplicarCheckboxReceta(checkRecetaVenta);
-
-        QPushButton* botonVender = new QPushButton("Procesar Venta");
-        QPushButton* botonMenu = new QPushButton("Volver");
-
-        ui.aplicarEstiloBoton(botonVender);
-        ui.aplicarEstiloBoton(botonMenu);
+        comboFiltroClientes = new QComboBox(this);
 
         tablaVentas = new QTableWidget(this);
-        tablaVentas->setFixedHeight(100);
+
+        tablaVentas->setColumnCount(5);
+        tablaVentas->setHorizontalHeaderLabels({ "ID", "Fecha", "Cliente", "Cantidad", "Total" });
+        tablaVentas->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         tablaVentas->setEditTriggers(QAbstractItemView::NoEditTriggers);
         tablaVentas->setSelectionBehavior(QAbstractItemView::SelectRows);
-        tablaVentas->setSelectionMode(QAbstractItemView::SingleSelection);
-        tablaVentas->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-        tablaVentas->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
 
         ui.aplicarEstiloTabla(tablaVentas);
 
-		// Labels para los combos
-        QLabel* lblCliente = new QLabel("Cliente:");
-        QLabel* lblMedicamento = new QLabel("Medicamento:");
-        QLabel* lblCantidad = new QLabel("Cantidad:");
+        QPushButton* btnVender = new QPushButton("Procesar Venta");
+        QPushButton* btnMenu = new QPushButton("Volver");
 
-        ui.aplicarLabelInfo(lblCliente);
-        ui.aplicarLabelInfo(lblMedicamento);
-        ui.aplicarLabelInfo(lblCantidad);
+        ui.aplicarEstiloBoton(btnVender);
+        ui.aplicarEstiloBoton(btnMenu);
 
-        // Lyout
         layout->addWidget(titulo, 0, 0, 1, 2);
-        layout->addWidget(lblCliente, 1, 0, Qt::AlignRight);
+
+        layout->addWidget(new QLabel("Cliente:"), 1, 0);
         layout->addWidget(comboClientesVenta, 1, 1);
-        layout->addWidget(lblMedicamento, 2, 0, Qt::AlignRight);
+
+        layout->addWidget(new QLabel("Medicamento:"), 2, 0);
         layout->addWidget(comboMedicamentosVenta, 2, 1);
-        layout->addWidget(lblCantidad, 3, 0, Qt::AlignRight);
+
+        layout->addWidget(new QLabel("Cantidad:"), 3, 0);
         layout->addWidget(spinCantidadVenta, 3, 1);
+
         layout->addWidget(checkRecetaVenta, 4, 1);
+
         layout->addWidget(lblSubtotalVenta, 5, 0);
         layout->addWidget(lblTotalVenta, 5, 1);
-        layout->addWidget(botonVender, 6, 0, 1, 2);
-        layout->addWidget(tablaVentas, 7, 0, 1, 2);
-        layout->addWidget(botonMenu, 8, 0, 1, 2);
 
-		// Conexiones
+        layout->addWidget(btnVender, 6, 0, 1, 2);
+
+        layout->addWidget(new QLabel("Filtro de ventas por cliente:"), 7, 0);
+        layout->addWidget(comboFiltroClientes, 7, 1);
+
+        layout->addWidget(lblTotalFiltro, 8, 0, 1, 2);
+
+        layout->addWidget(tablaVentas, 9, 0, 1, 2);
+
+        layout->addWidget(btnMenu, 10, 0, 1, 2);
+
+        connect(btnVender, &QPushButton::clicked, this, &VentasView::procesarVentaUI);
+        connect(btnMenu, &QPushButton::clicked, this, &VentasView::volverAlMenu);
         connect(comboClientesVenta, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &VentasView::actualizarVistaPrecioVenta);
-
         connect(comboMedicamentosVenta, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &VentasView::actualizarVistaPrecioVenta);
-
         connect(spinCantidadVenta, QOverload<int>::of(&QSpinBox::valueChanged),
             this, &VentasView::actualizarVistaPrecioVenta);
-
-        connect(checkRecetaVenta, &QCheckBox::checkStateChanged,
-            this, &VentasView::actualizarVistaPrecioVenta);
-
-        connect(botonVender, &QPushButton::clicked,
-            this, &VentasView::procesarVentaUI);
-
-        connect(botonMenu, &QPushButton::clicked,
-            this, &VentasView::volverAlMenu);
-
-		// conectamos el cambio de texto del QLineEdit dentro del QSpinBox para manejar cambios manuales
-        if (QLineEdit* editorCantidad = spinCantidadVenta->findChild<QLineEdit*>()) {
-            connect(editorCantidad, &QLineEdit::textChanged,
-                this, &VentasView::manejarCambioTextoCantidad);
-        }
-
-        resetEstadoReceta();
+        connect(comboFiltroClientes, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            this, &VentasView::actualizarFiltroVentas);
     }
 
     void VentasView::actualizarVista() {
+
         cargarCombosVentas();
         actualizarTablaVentas();
-    }
-
-    void VentasView::actualizarTablaVentas() {
-        tablaVentas->setRowCount(0);
-        QStringList titulos = { "ID Venta", "Fecha", "Cliente", "Medicamento", "Cantidad", "Total" };
-        tablaVentas->setColumnCount(titulos.size());
-        tablaVentas->setHorizontalHeaderLabels(titulos);
-        tablaVentas->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
-
-        for (int i = 0; i < sistema->getCantVentas(); i++) {
-            Venta* venta = sistema->getVentaPorIndice(i);
-
-            if (venta != nullptr) {
-
-                int fila = tablaVentas->rowCount();
-                tablaVentas->insertRow(fila);
-
-                tablaVentas->setItem(fila, 0, new QTableWidgetItem(QString::number(venta->getId())));
-                tablaVentas->setItem(fila, 1, new QTableWidgetItem(QString::fromStdString(venta->getFecha())));
-                tablaVentas->setItem(fila, 2, new QTableWidgetItem(QString::number(venta->getIdCliente())));
-                tablaVentas->setItem(fila, 3, new QTableWidgetItem(QString::fromStdString(venta->getNombreMedicamento())));
-                tablaVentas->setItem(fila, 4, new QTableWidgetItem(QString::number(venta->getCantidad())));
-                tablaVentas->setItem(fila, 5, new QTableWidgetItem("₡" + QString::number(venta->getPrecioFinal(), 'f', 2)));
-            }
-        }
+        actualizarFiltroVentas();
     }
 
     void VentasView::cargarCombosVentas() {
-        comboClientesVenta->blockSignals(true);
-        comboMedicamentosVenta->blockSignals(true);
 
         comboClientesVenta->clear();
         comboMedicamentosVenta->clear();
+        comboFiltroClientes->clear();
+
+        comboFiltroClientes->addItem("Todos", -1);
 
         for (int i = 0; i < sistema->getCantClientes(); i++) {
-            Cliente* cliente = sistema->getClientePorIndice(i);
-            if (cliente != nullptr) {
-                comboClientesVenta->addItem(QString::fromStdString(cliente->getCedula() + " - " + cliente->getNombre()), cliente->getID());
+
+            Cliente* c = sistema->getClientePorIndice(i);
+
+            if (c != nullptr) {
+
+                comboClientesVenta->addItem(
+                    QString::fromStdString(c->getNombre()),
+                    c->getID());
+
+                comboFiltroClientes->addItem(
+                    QString::fromStdString(c->getNombre()),
+                    c->getID());
             }
         }
 
         for (int i = 0; i < sistema->getCantMedicamentos(); i++) {
-            Medicamento* medicamento = sistema->getMedicamentoPorIndice(i);
-            if (medicamento != nullptr) {
-                comboMedicamentosVenta->addItem(QString::fromStdString(medicamento->getNombre()), medicamento->getID());
+
+            Medicamento* m = sistema->getMedicamentoPorIndice(i);
+
+            if (m != nullptr) {
+
+                comboMedicamentosVenta->addItem(
+                    QString::fromStdString(m->getNombre()),
+                    m->getID());
             }
         }
+    }
 
-        // nada este seleccionado al inicio
-        comboClientesVenta->setCurrentIndex(-1);
-        comboMedicamentosVenta->setCurrentIndex(-1);
-        comboClientesVenta->blockSignals(false);
-        comboMedicamentosVenta->blockSignals(false);
+    void VentasView::actualizarTablaVentas() {
 
-        // limpiamos los labels de precio 
-        lblSubtotalVenta->setText("Subtotal: CRC 0.00");
-        lblTotalVenta->setText("Total: CRC 0.00");
+        tablaVentas->setRowCount(0);
+
+        for (int i = 0; i < sistema->getCantVentas(); i++) {
+
+            Venta* v = sistema->getVentaPorIndice(i);
+
+            if (v != nullptr) {
+
+                int fila = tablaVentas->rowCount();
+
+                tablaVentas->insertRow(fila);
+
+                tablaVentas->setItem(fila, 0,
+                    new QTableWidgetItem(QString::number(v->getId())));
+
+                tablaVentas->setItem(fila, 1,
+                    new QTableWidgetItem(QString::fromStdString(v->getFecha())));
+
+                tablaVentas->setItem(fila, 2,
+                    new QTableWidgetItem(QString::number(v->getIdCliente())));
+
+                tablaVentas->setItem(fila, 3,
+                    new QTableWidgetItem(QString::number(v->getCantidad())));
+
+                tablaVentas->setItem(fila, 4,
+                    new QTableWidgetItem("CRC " + QString::number(v->getPrecioFinal(), 'f', 2)));
+            }
+        }
     }
 
     void VentasView::actualizarVistaPrecioVenta() {
- 
-        if (comboClientesVenta->currentIndex() != -1 && comboMedicamentosVenta->currentIndex() != -1) {
 
-            Cliente* cliente = sistema->buscarClientePorID(comboClientesVenta->currentData().toInt());
-            Medicamento* medicamento = sistema->buscarMedicamentoPorID(comboMedicamentosVenta->currentData().toInt());
+        Cliente* c = sistema->buscarClientePorID(
+            comboClientesVenta->currentData().toInt());
 
-            if (cliente != nullptr && medicamento != nullptr) {
+        Medicamento* m = sistema->buscarMedicamentoPorID(
+            comboMedicamentosVenta->currentData().toInt());
 
-                int cantidadActual = spinCantidadVenta->value();
-                double subtotal = medicamento->calcularPrecioFinal(cantidadActual);
-                double total = sistema->calcularTotalVenta(cliente, medicamento, cantidadActual);
+        if (c != nullptr && m != nullptr) {
 
-                lblSubtotalVenta->setText("Subtotal: CRC " + QString::number(subtotal, 'f', 2));
-                lblTotalVenta->setText("Total: CRC " + QString::number(total, 'f', 2));
+            int cantidad = spinCantidadVenta->value();
 
-                // Logica de receta ,solo se habilita si el medicamento la requiere
-                checkRecetaVenta->setEnabled(medicamento->getReceta());
-                if (medicamento->getReceta() == false) {
-                    checkRecetaVenta->setChecked(false);
-                }
-            }
-        }
-        else {
+            double subtotal = m->calcularPrecioFinal(cantidad);
 
-            lblSubtotalVenta->setText("Subtotal: CRC 0.00");
-            lblTotalVenta->setText("Total: CRC 0.00");
-			resetEstadoReceta();
+            double total = sistema->calcularTotalVenta(c, m, cantidad);
+
+            lblSubtotalVenta->setText(
+                "Subtotal: CRC " + QString::number(subtotal, 'f', 2));
+
+            lblTotalVenta->setText(
+                "Total: CRC " + QString::number(total, 'f', 2));
         }
     }
 
     void VentasView::procesarVentaUI() {
-        if (comboClientesVenta->currentIndex() == -1 || comboMedicamentosVenta->currentIndex() == -1) {
-            QMessageBox::warning(this, "FarmaSystem", "Seleccione cliente y medicamento.");
+
+        Cliente* c = sistema->buscarClientePorID(
+            comboClientesVenta->currentData().toInt());
+
+        Medicamento* m = sistema->buscarMedicamentoPorID(
+            comboMedicamentosVenta->currentData().toInt());
+
+        if (c == nullptr || m == nullptr) {
+
+            QMessageBox::warning(
+                this,
+                "FarmaSystem",
+                "Seleccione cliente y medicamento.");
+
             return;
         }
 
-        Cliente* cliente = sistema->buscarClientePorID(comboClientesVenta->currentData().toInt());
-        Medicamento* medicamento = sistema->buscarMedicamentoPorID(comboMedicamentosVenta->currentData().toInt());
+        QString fecha = QDate::currentDate().toString("dd/MM/yyyy");
 
-        if (!cliente || !medicamento) return;
-
-        QString fechaHoy = QDate::currentDate().toString("dd/MM/yyyy");
-        int resultado = sistema->registrarVenta(cliente->getCedula(), medicamento->getID(), spinCantidadVenta->value(),
-            checkRecetaVenta->isChecked(), fechaHoy.toStdString());
+        int resultado = sistema->registrarVenta(
+            c->getCedula(),
+            m->getID(),
+            spinCantidadVenta->value(),
+            checkRecetaVenta->isChecked(),
+            fecha.toStdString()
+        );
 
         if (resultado == 0) {
-            QMessageBox::information(this, "FarmaSystem", "Venta registrada.");
 
-            spinCantidadVenta->setValue(0);
+            QMessageBox::information(
+                this,
+                "FarmaSystem",
+                "Venta registrada correctamente.");
+
             actualizarVista();
+
             emit datosActualizados();
-            resetEstadoReceta();
         }
         else {
-            QString mensajeSistema;
-            switch (resultado) {
-            case 1: mensajeSistema = "Cliente no existe."; break;
-            case 2: mensajeSistema = "Medicamento no existe."; break;
-            case 3: mensajeSistema = "Cantidad invalida."; break;
-            case 4: mensajeSistema = "Fecha vacia."; break;
-            case 5: mensajeSistema = "Requiere receta."; break;
-            case 6: mensajeSistema = "Stock insuficiente."; break;
-            case 7: mensajeSistema = "Excede dosis."; break;
-            default: mensajeSistema = "Error desconocido."; break;
+
+            QString mensaje = "Error al registrar venta.";
+
+            if (resultado == 1) {
+                mensaje = "Cliente no existe.";
             }
-            QMessageBox::critical(this, "FarmaSystem", mensajeSistema);
+            else if (resultado == 2) {
+                mensaje = "Medicamento no existe.";
+            }
+            else if (resultado == 3) {
+                mensaje = "Cantidad invalida.";
+            }
+            else if (resultado == 4) {
+                mensaje = "Fecha invalida.";
+            }
+            else if (resultado == 5) {
+                mensaje = "El medicamento requiere receta.";
+            }
+            else if (resultado == 6) {
+                mensaje = "Stock insuficiente.";
+            }
+            else if (resultado == 7) {
+                mensaje = "La cantidad excede la dosis permitida.";
+            }
+
+            QMessageBox::warning(this, "FarmaSystem", mensaje);
         }
     }
 
-    void VentasView::manejarCambioTextoCantidad(const QString& texto) {
-        if (texto.isEmpty()) {
-    
-            lblSubtotalVenta->setText("Subtotal: CRC 0.00");
-            lblTotalVenta->setText("Total: CRC 0.00");
+    void VentasView::actualizarFiltroVentas() {
+
+        int idCliente = comboFiltroClientes->currentData().toInt();
+
+        double total = 0;
+
+        tablaVentas->setRowCount(0);
+
+        for (int i = 0; i < sistema->getCantVentas(); i++) {
+
+            Venta* v = sistema->getVentaPorIndice(i);
+
+            if (v != nullptr) {
+
+                bool mostrar = false;
+
+                if (idCliente == -1) {
+                    mostrar = true;
+                }
+                else if (v->getIdCliente() == idCliente) {
+                    mostrar = true;
+                }
+
+                if (mostrar) {
+
+                    total += v->getPrecioFinal();
+
+                    int fila = tablaVentas->rowCount();
+
+                    tablaVentas->insertRow(fila);
+
+                    tablaVentas->setItem(fila, 0,
+                        new QTableWidgetItem(QString::number(v->getId())));
+
+                    tablaVentas->setItem(fila, 1,
+                        new QTableWidgetItem(QString::fromStdString(v->getFecha())));
+
+                    tablaVentas->setItem(fila, 2,
+                        new QTableWidgetItem(QString::number(v->getIdCliente())));
+
+                    tablaVentas->setItem(fila, 3,
+                        new QTableWidgetItem(QString::number(v->getCantidad())));
+
+                    tablaVentas->setItem(fila, 4,
+                        new QTableWidgetItem("CRC " + QString::number(v->getPrecioFinal(), 'f', 2)));
+                }
+            }
         }
-        else {
-            actualizarVistaPrecioVenta();
-        }
+
+        lblTotalFiltro->setText(
+            "Total filtro: CRC " + QString::number(total, 'f', 2));
     }
 
-    void VentasView::resetEstadoReceta()
-    {
+    void VentasView::manejarCambioTextoCantidad(const QString&) {
+
+        actualizarVistaPrecioVenta();
+    }
+
+    void VentasView::resetEstadoReceta() {
+
         checkRecetaVenta->setChecked(false);
         checkRecetaVenta->setEnabled(false);
     }

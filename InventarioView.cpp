@@ -50,8 +50,8 @@ namespace FarmaSystem {
         // Diseno tabla
         tabla = new QTableWidget;
 
-		tabla->setColumnCount(5);
-        tabla->setHorizontalHeaderLabels({ "ID", "Nombre", "Categoria", "Stock", "Precio" });
+        tabla->setColumnCount(6);
+        tabla->setHorizontalHeaderLabels({ "ID", "Nombre", "Categoria", "Stock", "Precio", "Proveedor" });
         tabla->verticalHeader()->setVisible(false);
         tabla->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         tabla->setEditTriggers(QAbstractItemView::NoEditTriggers);
@@ -157,13 +157,22 @@ namespace FarmaSystem {
 
     void InventarioView::abrirDialogRegistrarMedicamento() {
 
+        // Validar que existan proveedores registrados antes de permitir crear medicamentos
+        if (sistema->getListaProveedores().cantidad() == 0) {
+            QMessageBox::warning(this, "FarmaSystem",
+                "Debe registrar al menos un proveedor antes de agregar medicamentos.");
+            return;
+        }
+
         QDialog dialog(this);
         dialog.setWindowTitle("FarmaSystem");
         dialog.setMinimumWidth(400);
 
         QVBoxLayout* layout = new QVBoxLayout(&dialog);
 
-        // campos comunes
+        // -------------------------------------------------------------------------
+        // Campos básicos
+        // -------------------------------------------------------------------------
         QLineEdit* espacioNombre = new QLineEdit();
         espacioNombre->setPlaceholderText("Nombre del medicamento");
 
@@ -178,26 +187,50 @@ namespace FarmaSystem {
         QComboBox* espacioTipo = new QComboBox();
         espacioTipo->addItems({ "Generico", "De Marca", "Controlado" });
 
+        // Selector de proveedor
+        QComboBox* espacioProveedor = new QComboBox();
+        espacioProveedor->addItem("Seleccione un proveedor...", 0);
+
+        for (int i = 0; i < sistema->getListaProveedores().cantidad(); i++) {
+            Proveedor* proveedor = sistema->getListaProveedores().obtener(i);
+
+            if (proveedor != nullptr) {
+                // visible nombre del proveedor
+                // oculto ID del proveedor
+                espacioProveedor->addItem(
+                    QString::fromStdString(proveedor->getNombre()),
+                    proveedor->getID()
+                );
+            }
+        }
+
         // Campos dinamicos
         QLabel* labelDinamico = new QLabel("Principio Activo:");
         QLineEdit* editDinamico = new QLineEdit();
+
         QCheckBox* checkPromo = new QCheckBox("Aplicar Promocion (15% desc)");
+
         QLabel* labelNivel = new QLabel("Nivel de Control [1-4]:");
         QSpinBox* spinNivel = new QSpinBox();
         spinNivel->setRange(1, 4);
 
-        // estado inicial bloqueados por defecto
+        // Estado inicial
         checkPromo->hide();
         labelNivel->hide();
         spinNivel->hide();
 
-        // Construcion
+        // Construccion del formulario
         layout->addWidget(new QLabel("<b>Datos Basicos</b>"));
         layout->addWidget(espacioNombre);
         layout->addWidget(espacioPrecio);
         layout->addWidget(espacioStock);
+
         layout->addWidget(new QLabel("<b>Categoria</b>"));
         layout->addWidget(espacioTipo);
+
+        layout->addWidget(new QLabel("<b>Proveedor</b>"));
+        layout->addWidget(espacioProveedor);
+
         layout->addWidget(checkPromo);
         layout->addWidget(labelDinamico);
         layout->addWidget(editDinamico);
@@ -207,86 +240,148 @@ namespace FarmaSystem {
         QPushButton* botonGuardar = new QPushButton("Guardar");
         layout->addWidget(botonGuardar);
 
-        // Campos Dinamicos
+        // Cambiar campos según el tipo de medicamento
         connect(espacioTipo, QOverload<int>::of(&QComboBox::currentIndexChanged), [&](int index) {
 
-            // Control de visibilidad base
+            // Control de visibilidad
             checkPromo->setVisible(index == 1);
             labelNivel->setVisible(index == 2);
             spinNivel->setVisible(index == 2);
 
             switch (index) {
 
-            case 0: // Generico
-                labelDinamico->setText("Principio Activo:");
-                editDinamico->setPlaceholderText("Ej: Ibuprofeno");
-                break;
-            case 1: // Marca
-                labelDinamico->setText("Pais de Origen:");
-                editDinamico->setPlaceholderText("Ej: Costa Rica");
-                break;
-            case 2: // Controlado
-                labelDinamico->setText("Dosis Maxima (mg):");
-                editDinamico->setPlaceholderText("Ej: 500");
-                break;
+                case 0: // Generico
+                    labelDinamico->setText("Principio Activo:");
+                    editDinamico->setPlaceholderText("Ej: Ibuprofeno");
+                    break;
+
+                case 1: // Marca
+                    labelDinamico->setText("Pais de Origen:");
+                    editDinamico->setPlaceholderText("Ej: Costa Rica");
+                    break;
+
+                case 2: // Controlado
+                    labelDinamico->setText("Dosis Maxima (mg):");
+                    editDinamico->setPlaceholderText("Ej: 500");
+                    break;
             }
-        
         });
 
+            // Configurar estado inicial
+        espacioTipo->setCurrentIndex(0);
+        // Guardar medicamento
         connect(botonGuardar, &QPushButton::clicked, [&]() {
 
             std::string nombre = espacioNombre->text().trimmed().toStdString();
-            double pre = espacioPrecio->value();
+            double precio = espacioPrecio->value();
             int stock = espacioStock->value();
             std::string infoExtra = editDinamico->text().trimmed().toStdString();
-            int res = -1;
 
+            // Validar nombre
             if (nombre.empty()) {
-                QMessageBox::warning(&dialog, "Error", "El nombre es obligatorio.");
+                QMessageBox::warning(&dialog, "Error",
+                    "El nombre es obligatorio.");
                 return;
             }
 
-            // Switch para decidir metodo del sistema a llamar
+            // Validar proveedor
+            int indexProv = espacioProveedor->currentIndex();
+            int idProv = espacioProveedor->currentData().toInt();
+
+            if (indexProv <= 0 || idProv <= 0) {
+                QMessageBox::warning(&dialog, "Error",
+                    "Debe seleccionar un proveedor valido.");
+                return;
+            }
+
+            // Validacion extra por seguridad
+            Proveedor* prov = sistema->getListaProveedores().buscarPorId(idProv);
+            if (prov == nullptr) {
+                QMessageBox::critical(&dialog, "Error",
+                    "El proveedor seleccionado no existe.");
+                return;
+            }
+
+            int resultado = -1;
+
             switch (espacioTipo->currentIndex()) {
 
             case 0: // Generico
-                res = sistema->registrarGenerico(nombre, pre, stock, infoExtra);
+                resultado = sistema->registrarGenerico(
+                    nombre,
+                    precio,
+                    stock,
+                    infoExtra,
+                    idProv
+                );
                 break;
 
             case 1: // Marca
-                res = sistema->registrarMarca(nombre, pre, stock, infoExtra, checkPromo->isChecked());
+                resultado = sistema->registrarMarca(
+                    nombre,
+                    precio,
+                    stock,
+                    infoExtra,
+                    checkPromo->isChecked(),
+                    idProv
+                );
                 break;
 
             case 2: // Controlado
             {
-                bool ok;
+                bool ok = false;
                 double dosis = QString::fromStdString(infoExtra).toDouble(&ok);
 
                 if (!ok || dosis <= 0) {
-                    QMessageBox::warning(&dialog, "Error", "Dosis invalida.");
+                    QMessageBox::warning(&dialog, "Error",
+                        "Dosis invalida.");
                     return;
                 }
-                res = sistema->registrarControlado(nombre, pre, stock, spinNivel->value(), dosis);
+
+                resultado = sistema->registrarControlado(
+                    nombre,
+                    precio,
+                    stock,
+                    spinNivel->value(),
+                    dosis,
+                    idProv
+                );
             }
             break;
             }
 
-            // Switch para manejar la respuesta del sistema
-            switch (res) {
+            // Manejo de resultados
+            switch (resultado) {
 
             case 0:
-                QMessageBox::information(&dialog, "FarmaSystem", "Registrado correctamente.");
+                QMessageBox::information(&dialog, "FarmaSystem",
+                    "Registrado correctamente.");
                 llenarTablaUI();
                 emit datosActualizados();
                 dialog.accept();
                 break;
-            case 1: QMessageBox::warning(&dialog, "FarmaSystem", "Faltan campos obligatorios."); break;
-            case 2: QMessageBox::warning(&dialog, "FarmaSysten", "Precio o Stock invalidos."); break;
-            case 3: QMessageBox::warning(&dialog, "FarmaSystem", "Nivel de control incorrecto."); break;
-            default: QMessageBox::critical(&dialog, "FarmaSystem", "Error interno del sistema."); break;
-          
-            }  
-        });
+
+            case 1:
+                QMessageBox::warning(&dialog, "FarmaSystem",
+                    "Faltan campos obligatorios.");
+                break;
+
+            case 2:
+                QMessageBox::warning(&dialog, "FarmaSystem",
+                    "Precio o stock invalidos.");
+                break;
+
+            case 3:
+                QMessageBox::warning(&dialog, "FarmaSystem",
+                    "Nivel de control incorrecto.");
+                break;
+
+            default:
+                QMessageBox::critical(&dialog, "FarmaSystem",
+                    "Error interno del sistema.");
+                break;
+            }
+            });
 
         dialog.exec();
     }
@@ -431,6 +526,13 @@ namespace FarmaSystem {
         tabla->setItem(filaActual, 2, new QTableWidgetItem(categoria));
         tabla->setItem(filaActual, 3, new QTableWidgetItem(stock));
         tabla->setItem(filaActual, 4, new QTableWidgetItem(precio));
+
+		// nuevo, mostrar nombre del proveedor en la tabla
+        Proveedor* prov = sistema->getListaProveedores().buscarPorId(medicamento->getIdProveedor());
+
+        QString nombreProveedor = (prov != nullptr) ? QString::fromStdString(prov->getNombre()) : "Desconocido";
+
+        tabla->setItem(filaActual, 5, new QTableWidgetItem(nombreProveedor));
     }
 
     bool InventarioView::eventFilter(QObject* obj, QEvent* event) {

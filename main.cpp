@@ -6,7 +6,7 @@
 int main(int argc, char* argv[]) {
     QApplication a(argc, argv);
 
-    FarmaSystem::SistemaFarmacia* sistema = new FarmaSystem::SistemaFarmacia(3);
+    FarmaSystem::SistemaFarmacia* sistema = new FarmaSystem::SistemaFarmacia();
     FarmaSystem::MainWindow ventanaPrincipal(sistema);
     ventanaPrincipal.show();
 

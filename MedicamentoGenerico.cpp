@@ -2,8 +2,10 @@
 
 namespace FarmaSystem {
 
-    MedicamentoGenerico::MedicamentoGenerico(int id, std::string nombre, double precio, bool receta, int stock, std::string principio)
-        : Medicamento(id, nombre, precio, receta, stock), principioActivo(principio) {}
+    MedicamentoGenerico::MedicamentoGenerico(int id, std::string nombre, double precio, bool receta, int stock, std::string principio, int idProveedor)
+        : Medicamento(id, nombre, precio, receta, stock, idProveedor), principioActivo(principio) {
+    }
+
 
     std::string MedicamentoGenerico::getCategoria() const 
     { return "Generico"; }
@@ -22,6 +24,17 @@ namespace FarmaSystem {
 
     std::string MedicamentoGenerico::getInfoExtra() const 
     { return "Principio activo: " + principioActivo; }
+
+    std::string MedicamentoGenerico::getPrincipioActivo() const {
+        return principioActivo;
+    }
+
+    std::string MedicamentoGenerico::toFile() const {
+
+        return getCategoria() + "|" + std::to_string(getID()) + "|" + getNombre() + "|" + std::to_string(getPrecio()) + "|" +
+            std::to_string(getStock()) + "|" + (getReceta() ? "1" : "0") + "|" + std::to_string(getIdProveedor())
+            + "|" + principioActivo;
+    }
 
     MedicamentoGenerico::~MedicamentoGenerico() {}
 }

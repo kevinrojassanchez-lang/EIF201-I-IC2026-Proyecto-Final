@@ -1,16 +1,20 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "ClientesView.h"
-#include "InventarioView.h"
-#include "CategoriasView.h"
-#include "VentasView.h"
-
 #include <QMainWindow>
 #include <QStackedWidget>
 #include <QStatusBar>
 #include <QPushButton>
 #include <QLabel>
+
+#include "ArchivoCarga.h"
+#include "ArchivoGuardado.h"
+#include "ClientesView.h"
+#include "InventarioView.h"
+#include "CategoriasView.h"
+#include "VentasView.h"
+#include "ProveedoresView.h"
+#include "EstadisticasView.h"
 
 #include "SistemaFarmacia.h"
 
@@ -20,17 +24,20 @@ namespace FarmaSystem {
         Q_OBJECT
 
      private:
-        // SISTEMA
         SistemaFarmacia* sistema;
 
-        // Contenedor de pantallas
-        QStackedWidget* vistas;
+        // Atributos de persistencia
+        ArchivoCarga cargador;
+        ArchivoGuardado guardador;
 
-        // Punteros a las vistas (Clases modularizadas)
+        // Vistas
+        QStackedWidget* vistas;
         InventarioView* vistaInventario;
         ClientesView* vistaClientes;
+        ProveedoresView* vistaProveedores;
         CategoriasView* vistaCategorias;
         VentasView* vistaVentas;
+        EstadisticasView* vistaEstadisticas; // nuevo
 
         // Metodos de creacion y navegacion
         QWidget* crearMenuPrincipal();
@@ -38,10 +45,16 @@ namespace FarmaSystem {
         void mostrarVistaClientes();
         void mostrarVistaVentas();
         void mostrarVistaCategorias();
+        void mostrarVistaProveedores();
+        void mostrarVistaEstadisticas();
 
         // UI General
         void actualizarBarraEstado();
         void mostrarVistaMenuPrincipal();
+
+    protected:
+        // Sobrescribimos el evento de cierre de Qt para atrapar la X que cierra la ventana
+        void closeEvent(QCloseEvent* event) override;
 
      public:
         MainWindow(SistemaFarmacia* sistema, QWidget* parent = nullptr);

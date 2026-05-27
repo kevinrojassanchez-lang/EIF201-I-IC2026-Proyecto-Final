@@ -1,340 +1,338 @@
 #include "SistemaFarmacia.h"
-#include <iostream>
-#include <string>
-#include <cctype>
+#include "ArchivoCarga.h"
+#include "ArchivoGuardado.h"
+#include "MedicamentoGenerico.h"
+#include "MedicamentoMarca.h"
+#include "MedicamentoControlado.h"
 
 namespace FarmaSystem {
 
-    SistemaFarmacia::SistemaFarmacia(int cantidadInicial) : cantidadClientes
-    (0), cantidadMedicamentos(0), cantidadVentas(0), capacidadClientes(cantidadInicial), capacidadMedicamentos(cantidadInicial),
-        capacidadVentas(cantidadInicial), nextIdMedicamento(1), nextIdCliente(1), nextIdVenta(1)
+    SistemaFarmacia::SistemaFarmacia() : nextIdMedicamento(1), nextIdProveedor(1), nextIdCliente(1),
+        nextIdVenta(1), datosCargados(false)
     {
-        listaClientes = new Cliente * [capacidadClientes];
-        listaMedicamentos = new Medicamento * [capacidadMedicamentos];
-        listaVentas = new Venta * [capacidadVentas]; // ventas
+        // Las listas enlazadas se inicializan solas con sus constructores por defecto
+    }
+
+    void SistemaFarmacia::cargarDatos() {
+        ArchivoCarga carga;
+        carga.cargarTodo(*this);
+        datosCargados = true;
+    }
+
+    void SistemaFarmacia::guardarDatos() {
+        ArchivoGuardado guardado;
+        guardado.guardarTodo(*this);
     }
    
-    int SistemaFarmacia::registrarGenerico(std::string nombre, double precio, int stock, std::string principio) {
-        if (nombre.empty() || principio.empty()) return 1;
-        if (precio <= 0 || stock < 0) return 2;
+    int SistemaFarmacia::registrarGenerico(std::string nombre, double precio, int stock, std::string principio,
+        int idProveedor) {
 
-        if (cantidadMedicamentos == capacidadMedicamentos) { redimensionarMedicamentos(); }
-
-        listaMedicamentos[cantidadMedicamentos] = new MedicamentoGenerico(nextIdMedicamento++, nombre, precio, false, stock, principio);
-        cantidadMedicamentos++;
+        if (nombre.empty() || principio.empty()) { return 1; }
+        if (precio <= 0 || stock < 0) { return 2; }
+        if (listaProveedores.buscarPorId(idProveedor) == nullptr) { return 3;}
+        Medicamento* nuevo = new MedicamentoGenerico(nextIdMedicamento++, nombre, precio, false, stock,
+        principio, idProveedor);
+        listaMedicamentos.agregar(nuevo);
         return 0;
     }
 
-    int SistemaFarmacia::registrarMarca(std::string nombre, double precio, int stock, std::string pais, bool promo) {
-        if (nombre.empty() || pais.empty()) return 1;
-        if (precio <= 0 || stock < 0) return 2;
+    int SistemaFarmacia::registrarMarca(std::string nombre, double precio, int stock, std::string pais,
+        bool promo, int idProveedor) {
 
-        if (cantidadMedicamentos == capacidadMedicamentos) { redimensionarMedicamentos(); }
-
-        listaMedicamentos[cantidadMedicamentos] = new MedicamentoMarca(nextIdMedicamento++, nombre, precio, false, stock, pais, promo);
-        cantidadMedicamentos++;
+        if (nombre.empty() || pais.empty()) { return 1; }
+        if (precio <= 0 || stock < 0) { return 2; }
+        if (listaProveedores.buscarPorId(idProveedor) == nullptr) { return 3; }
+        Medicamento* nuevo = new MedicamentoMarca(nextIdMedicamento++, nombre, precio, false, stock, pais, promo, idProveedor);
+        listaMedicamentos.agregar(nuevo);
         return 0;
     }
 
-    int SistemaFarmacia::registrarControlado(std::string nombre, double precio, int stock, int nivel, double dosis) {
-        if (nombre.empty()) return 1;
-        if (precio <= 0 || stock < 0 || dosis <= 0) return 2;
-        if (nivel < 1 || nivel > 4) return 3;
+    int SistemaFarmacia::registrarControlado(std::string nombre, double precio, int stock, int nivel,
+        double dosis, int idProveedor) {
 
-        if (cantidadMedicamentos == capacidadMedicamentos) { redimensionarMedicamentos(); }
-
-        listaMedicamentos[cantidadMedicamentos] = new MedicamentoControlado(nextIdMedicamento++, nombre, precio, stock, nivel, dosis);
-        cantidadMedicamentos++;
+        if (nombre.empty()) { return 1; }
+        if (precio <= 0 || stock < 0 || dosis <= 0) { return 2; }
+        if (nivel < 1 || nivel > 4) { return 3; }
+        if (listaProveedores.buscarPorId(idProveedor) == nullptr) { return 4; }
+        Medicamento* nuevo = new MedicamentoControlado(nextIdMedicamento++, nombre, precio, stock, nivel, dosis, idProveedor);
+        listaMedicamentos.agregar(nuevo);
         return 0;
     }
 
     void SistemaFarmacia::listarMedicamentos() {
-        if (cantidadMedicamentos == 0) {
-            return;
-		}
-        for (int i = 0; i < cantidadMedicamentos; i++) {
-            listaMedicamentos[i]->mostrar();
+        NodoMedicamento* actual = listaMedicamentos.getCabeza();
+
+        while (actual != nullptr) {
+            Medicamento* med = actual->dato;
+            if (med != nullptr) { med->mostrar(); }
+
+            actual = actual->siguiente;
         }
     }
-       
+
     int SistemaFarmacia::actualizarStock(int id, int cantidad) {
-        for (int i = 0; i < cantidadMedicamentos; i++) {
-            if (listaMedicamentos[i] != nullptr && listaMedicamentos[i]->getID() == id) {
-                int nuevoStock = listaMedicamentos[i]->getStock() + cantidad;
-                if (nuevoStock < 0) { return 2; } // Stock negativo
 
-                listaMedicamentos[i]->setStock(nuevoStock);
-                return 0; // exito
-            }
-        }
-        return 1; // ID no encontrado
+        Medicamento* med = listaMedicamentos.buscarPorId(id);
+        if (med == nullptr) { return 1; }
+        int nuevoStock = med->getStock() + cantidad;
+        if (nuevoStock < 0) { return 2; }
+        med->setStock(nuevoStock);
+        return 0;
     }
-   
+
     bool SistemaFarmacia::eliminarMedicamento(int id) {
-        int posicion = -1;
-        for (int i = 0; i < cantidadMedicamentos; i++) {
-            if (listaMedicamentos[i]->getID() == id) {
-                posicion = i;
-                break;
-            }
+        Medicamento* medicamento = listaMedicamentos.buscarPorId(id);
+
+        if (medicamento == nullptr) { return false; }
+
+        NodoVenta* cabeza = listaVentas.getCabeza();
+
+        if (cabeza != nullptr) {
+
+            NodoVenta* actual = cabeza;
+
+            do {
+
+                Venta* ventaActual = actual->dato;
+
+                if (ventaActual != nullptr && ventaActual->getMedicamentoVendido() != nullptr &&
+                    ventaActual->getMedicamentoVendido()->getID() == medicamento->getID()) {
+
+                    return false;
+                }
+                actual = actual->siguiente;
+
+            } while (actual != cabeza);
         }
+        return listaMedicamentos.eliminar(id);
+    }
 
-        if (posicion == -1) {
-            return false;
-        }
+	// Registro de Proveedores
+    int SistemaFarmacia::registrarProveedor(std::string nombre, std::string telefono, std::string email,
+        std::string pais) {
 
-        for (int i = 0; i < cantidadVentas; i++) {
-            if (listaVentas[i]->getMedicamentoVendido() == listaMedicamentos[posicion]) {
-                return false;
-            }
-        }
+        if (nombre.empty() || telefono.empty() || email.empty() || pais.empty()) { return 1; }
+        if (buscarProveedorPorNombre(nombre) != nullptr) { return 2;}
+        Proveedor* nuevo = new Proveedor(nextIdProveedor++, nombre, telefono, email, pais);
+        listaProveedores.agregar(nuevo);
+        return 0;
+    }
 
-        delete listaMedicamentos[posicion];
-        listaMedicamentos[posicion] = nullptr;
+    void SistemaFarmacia::cargarProveedorDesdeArchivo(int id, std::string nombre, std::string telefono,
+        std::string email, std::string pais) {
 
-        for (int j = posicion; j < cantidadMedicamentos - 1; j++) {
-            listaMedicamentos[j] = listaMedicamentos[j + 1];
-        }
+        Proveedor* nuevoProv = new Proveedor(id, nombre, telefono, email, pais);
+        listaProveedores.agregar(nuevoProv);
+        if (id >= nextIdProveedor) { nextIdProveedor = id + 1; }
+    }
 
-        listaMedicamentos[cantidadMedicamentos - 1] = nullptr;
-        cantidadMedicamentos--;
-
+    bool SistemaFarmacia::eliminarProveedor(int id) {
+        bool tiene = proveedorTieneMedicamentos(id);
+        bool eliminado = listaProveedores.eliminar(id, tiene);
+        if (!eliminado) { return false; }
         return true;
     }
+
+    Proveedor* SistemaFarmacia::buscarProveedorPorNombre(std::string nombre) {
+        return listaProveedores.buscarPorNombre(nombre);
+    }
+
     // Clientes
     int SistemaFarmacia::registrarCliente(std::string nombre, std::string cedula) {
-        if (nombre.empty() || cedula.empty()) return 1;
-
-        for (int i = 0; i < cantidadClientes; i++) {
-            if (listaClientes[i]->getCedula() == cedula) {
-                return 2;
-            }
-        }
-
-        if (cantidadClientes == capacidadClientes) { redimensionarClientes(); }
-
-        listaClientes[cantidadClientes] = new Cliente(nextIdCliente++, nombre, cedula);
-        cantidadClientes++;
-        return 0; // exito
+        if (nombre.empty() || cedula.empty()) { return 1; }
+        if (listaClientes.buscarPorCedula(cedula) != nullptr) { return 2; }
+        Cliente* nuevoCli = new Cliente(nextIdCliente++, nombre, cedula);
+        listaClientes.agregar(nuevoCli);
+        return 0; 
     }
 
     void SistemaFarmacia::listarClientes() {
-        if (cantidadClientes == 0) { return; }
-        for (int i = 0; i < cantidadClientes; i++) {
-            listaClientes[i]->mostrar();
+        NodoCliente* actual = listaClientes.getCabeza();
+        while (actual != nullptr) {
+            Cliente* cliente = actual->dato;
+            if (cliente != nullptr) { cliente->mostrar(); }
+
+            actual = actual->siguiente;
         }
     }
 
     void SistemaFarmacia::toggleFidelidad(int id) {
-        for (int i = 0; i < cantidadClientes; i++) {
-            if (listaClientes[i]->getID() == id) {
-               bool estadoActual = listaClientes[i]->getTarjeta();
-               listaClientes[i]->setTarjeta(!estadoActual);
-               return;
-            }
+        Cliente* cliente = listaClientes.buscarPorId(id);
+        if (cliente != nullptr) {
+            bool estadoActual = cliente->getTarjeta();
+			cliente->setTarjeta(!estadoActual);
         }
     }
 
     bool SistemaFarmacia::eliminarCliente(int id) {
-        int indice = -1;
-        for (int i = 0; i < cantidadClientes; i++) {
-            if (listaClientes[i]->getID() == id) {
-                indice = i;
-                break;
-            }
+        Cliente* cliente = listaClientes.buscarPorId(id);
+        if (cliente == nullptr) { return false; }
+
+        NodoVenta* cabeza = listaVentas.getCabeza();
+
+        if (cabeza != nullptr) {
+            NodoVenta* actual = cabeza;
+
+            do {
+
+                Venta* venta = actual->dato;
+                if (venta != nullptr && venta->getIdCliente() == id) {
+                    return false;
+                }
+                actual = actual->siguiente;
+
+            } while (actual != cabeza);
         }
-
-        if (indice == -1) {
-            return false;
-        }
-
-        std::string nombreCliente = listaClientes[indice]->getNombre();
-
-        delete listaClientes[indice];
-        listaClientes[indice] = nullptr;
-
-        for (int j = indice; j < cantidadClientes - 1; j++) {
-            listaClientes[j] = listaClientes[j + 1];
-        }
-
-        listaClientes[cantidadClientes - 1] = nullptr;
-        cantidadClientes--;
-
-        return true;
+        return listaClientes.eliminar(id);
     }
 
-    int SistemaFarmacia::registrarVenta(std::string cedula, int idMed, int cantidad, bool presentoReceta, std::string fecha) {
+    int SistemaFarmacia::registrarVenta(std::string cedula, int idMed, int cantidad, bool presentoReceta,
+        std::string fecha) {
 
         Cliente* clienteComprador = buscarClientePorCedula(cedula);
-        if (clienteComprador == nullptr) return 1; // Cliente no existe
+
+        if (clienteComprador == nullptr) { return 1; }
 
         Medicamento* medicamento = buscarMedicamentoPorID(idMed);
-		if (medicamento == nullptr) return 2; // Medicamento no existe
 
-        if (cantidad <= 0) return 3;  
-        if (fecha.empty()) return 4;
-        if (medicamento->excedeDosis(cantidad)) return 7;
-        if (medicamento->getReceta() && !presentoReceta) return 5;
-        if (medicamento->getStock() < cantidad) return 6;
+        if (medicamento == nullptr) { return 2; }
+        if (cantidad <= 0) { return 3; }
+        if (fecha.empty()) { return 4; }
+        if (medicamento->excedeDosis(cantidad)) { return 7; }
+        if (medicamento->getReceta() && !presentoReceta) { return 5; }
+        if (medicamento->getStock() < cantidad) { return 6; }
 
         double totalFinal = calcularTotalVenta(clienteComprador, medicamento, cantidad);
 
-        if (cantidadVentas == capacidadVentas) { redimensionarVentas(); }
+        Venta* nuevaVenta = new Venta(nextIdVenta++, clienteComprador->getID(), medicamento, cantidad, 
+            totalFinal, fecha);
 
-        listaVentas[cantidadVentas] = new Venta(nextIdVenta++, clienteComprador->getID(), medicamento, cantidad, totalFinal, fecha);
-        cantidadVentas++;
-
+        listaVentas.agregar(nuevaVenta);
         medicamento->setStock(medicamento->getStock() - cantidad);
 
-        return 0; // exito
+        return 0; // Exito
     }
 
     void SistemaFarmacia::listarVentas() {
-        if (cantidadVentas == 0) {
-            return;
-        }
 
-        for (int i = 0; i < cantidadVentas; i++) {
-            listaVentas[i]->getInfoVenta();
-        }
+        if (listaVentas.cantidad() == 0) { return; }
+
+        NodoVenta* cabeza = listaVentas.getCabeza();
+        NodoVenta* actual = cabeza;
+
+        do {
+
+            Venta* v = actual->dato;
+
+            if (v != nullptr) {
+                v->getInfoVenta();
+            }
+
+            actual = actual->siguiente;
+
+        } while (actual != cabeza);
     }
 
-    SistemaFarmacia::~SistemaFarmacia() {
-        for (int i = 0; i < cantidadMedicamentos; i++) {
-            delete listaMedicamentos[i];
-            listaMedicamentos[i] = nullptr;
-        }
+    // Implementacion de Getters
+    ListaProveedores& SistemaFarmacia::getListaProveedores() { return listaProveedores; }
+    ListaMedicamentos& SistemaFarmacia::getListaMedicamentos() { return listaMedicamentos; }
+    ListaClientes& SistemaFarmacia::getListaClientes() { return listaClientes; }
+    ListaVentas& SistemaFarmacia::getListaVentas() { return listaVentas; }
+    int SistemaFarmacia::getCantMedicamentos() const { return listaMedicamentos.cantidad(); }
+    int SistemaFarmacia::getCantClientes() const { return listaClientes.cantidad(); }
+    int SistemaFarmacia::getCantVentas() const { return listaVentas.cantidad(); }
+    Medicamento* SistemaFarmacia::getMedicamentoPorIndice(int i) { return listaMedicamentos.obtener(i); }
+    Cliente* SistemaFarmacia::getClientePorIndice(int i) { return listaClientes.obtener(i); }
+    Venta* SistemaFarmacia::getVentaPorIndice(int i) { return listaVentas.obtener(i); }
+    bool SistemaFarmacia::getDatosCargados() const { return datosCargados; }
 
-        delete[] listaMedicamentos;
-	    listaMedicamentos = nullptr;
-
-        for (int i = 0; i < cantidadClientes; i++) {
-            delete listaClientes[i];
-            listaClientes[i] = nullptr;
-        }
-
-        delete[] listaClientes;
-	    listaClientes = nullptr;
-
-        for (int i = 0; i < cantidadVentas; i++) {
-            delete listaVentas[i];
-        }
-        delete[] listaVentas;
-        listaVentas = nullptr;
-    }
-
-    // Implementacion de Getters para Qt
-    int SistemaFarmacia::getCantMedicamentos() const {
-        return cantidadMedicamentos;
-    }
-
-    int SistemaFarmacia::getCantClientes() const {
-        return cantidadClientes;
-    }
-
-    int SistemaFarmacia::getCantVentas() const {
-        return cantidadVentas;
-    }
-
-    Medicamento* SistemaFarmacia::getMedicamentoPorIndice(int i) {
-        if (i >= 0 && i < cantidadMedicamentos) {
-            return listaMedicamentos[i];
-        }
-        return nullptr;
-    }
-
-    Cliente* SistemaFarmacia::getClientePorIndice(int i) {
-        if (i >= 0 && i < cantidadClientes) {
-            return listaClientes[i];
-        }
-        return nullptr;
-    }
-
-    Venta* SistemaFarmacia::getVentaPorIndice(int i) {
-        if (i >= 0 && i < cantidadVentas) {
-            return listaVentas[i];
-        }
-        return nullptr;
-    }
+    void SistemaFarmacia::setDatosCargados(bool estado) { datosCargados = estado; }
 
 	// Nuevos metodos sepadados por criterio
     Cliente* SistemaFarmacia::buscarClientePorCedula(std::string cedula) {
-        for (int i = 0; i < cantidadClientes; i++) {
-            if (listaClientes[i]->getCedula() == cedula) {
-                return listaClientes[i];
-            }
-        }
-        return nullptr;
-	}
+        return listaClientes.buscarPorCedula(cedula);
+    }
 
     Cliente* SistemaFarmacia::buscarClientePorID(int id) {
-        for (int i = 0; i < cantidadClientes; i++) {
-            if (listaClientes[i]->getID() == id) {
-                return listaClientes[i];
-            }
-        }
-        return nullptr;
-	}
+        return listaClientes.buscarPorId(id);
+    }
 
     Medicamento* SistemaFarmacia::buscarMedicamentoPorID(int id) {
-        for (int i = 0; i < cantidadMedicamentos; i++) {
-            if (listaMedicamentos[i]->getID() == id) {
-                return listaMedicamentos[i];
-            }
-        }
-        return nullptr;
-	}
+        return listaMedicamentos.buscarPorId(id);
+    }
+
+    Medicamento* SistemaFarmacia::buscarMedicamentoPorNombre(std::string nombre) {
+       return listaMedicamentos.buscarPorNombre(nombre);
+    }
 
     double SistemaFarmacia::calcularTotalVenta(Cliente* cliente, Medicamento* medicamento, int cantidad) {
         double precioBase = medicamento->calcularPrecioFinal(cantidad);
         return precioBase * (cliente->getTarjeta() ? 0.95 : 1.0);
 	}
 
-	// Metodos de redimensionamiento separados por tipo de dato
-    void SistemaFarmacia::redimensionarMedicamentos() {
-        int nuevaCapacidad = capacidadMedicamentos * 2;
-        Medicamento** nuevaLista = new Medicamento * [nuevaCapacidad];
-        for (int i = 0; i < cantidadMedicamentos; i++) {
-            *(nuevaLista + i) = *(listaMedicamentos + i);
-        }
+    void SistemaFarmacia::cargarMedicamentoDesdeArchivo(Medicamento* med) {
 
-        for (int i = cantidadMedicamentos; i < nuevaCapacidad; i++) {
-            *(nuevaLista + i) = nullptr;
-        }
-        delete[] listaMedicamentos;
-        listaMedicamentos = nuevaLista;
-        capacidadMedicamentos = nuevaCapacidad;
+        listaMedicamentos.agregar(med);
+        if (med->getID() >= nextIdMedicamento) { nextIdMedicamento = med->getID() + 1; }
     }
 
-    void SistemaFarmacia::redimensionarClientes() {
-        int nuevaCapacidad = capacidadClientes * 2;
-        Cliente** nuevaLista = new Cliente * [nuevaCapacidad];
-        for (int i = 0; i < cantidadClientes; i++) {
-            *(nuevaLista + i) = *(listaClientes + i);
-        }
+    void SistemaFarmacia::cargarClienteDesdeArchivo(int id, std::string nombre, std::string cedula, 
+        bool tarjeta) {
 
-        for (int i = cantidadClientes; i < nuevaCapacidad; i++) {
-            *(nuevaLista + i) = nullptr;
-        }
-        delete[] listaClientes;
-        listaClientes = nuevaLista;
-        capacidadClientes = nuevaCapacidad;
+        Cliente* nuevo = new Cliente(id, nombre, cedula);
+        nuevo->setTarjeta(tarjeta);
+        listaClientes.agregar(nuevo);
+        if (id >= nextIdCliente) { nextIdCliente = id + 1; }
     }
 
-    void SistemaFarmacia::redimensionarVentas() {
-        int nuevaCapacidad = capacidadVentas * 2;
-        Venta** nuevaLista = new Venta * [nuevaCapacidad];
-        for (int i = 0; i < cantidadVentas; i++) {
-            *(nuevaLista + i) = *(listaVentas + i);
-        }
+    void SistemaFarmacia::cargarVentaDesdeArchivo(int id, int idCliente, int idMedicamento, int cantidad,
+        double precioFinal, std::string fecha) {
 
-        for (int i = cantidadVentas; i < nuevaCapacidad; i++) {
-            *(nuevaLista + i) = nullptr;
+        // Se busca el medicamento asociado asociado a la venta historica
+        Medicamento* medicamento = listaMedicamentos.buscarPorId(idMedicamento);
+        Venta* nuevaVenta = new Venta(id, idCliente, medicamento, cantidad, precioFinal, fecha);
+        listaVentas.agregar(nuevaVenta);
+        if (id >= nextIdVenta) { nextIdVenta = id + 1; }
+    }
+
+    Medicamento* SistemaFarmacia::obtenerMenorStock() {
+        return estadisticas.obtenerMenorStock(listaMedicamentos);
+    }
+
+    Medicamento* SistemaFarmacia::obtenerMasVendido() {
+        return estadisticas.obtenerMasVendido(listaMedicamentos, listaVentas);
+    }
+
+    Cliente* SistemaFarmacia::obtenerClienteVIP() {
+        return estadisticas.obtenerClienteVIP(listaClientes, listaVentas);
+    }
+
+    double SistemaFarmacia::obtenerIngresosTotales() {
+        return estadisticas.obtenerIngresosTotales(listaVentas);
+    }
+
+    int SistemaFarmacia::contarPorCategoria(std::string categoria) {
+        return estadisticas.contarPorCategoria(listaMedicamentos, categoria);
+    }
+
+    bool SistemaFarmacia::proveedorTieneMedicamentos(int idProveedor) {
+         NodoMedicamento* actual = listaMedicamentos.getCabeza();
+
+        while (actual != nullptr) {
+
+             Medicamento* medicamento = actual->dato;
+             if (medicamento != nullptr && medicamento->getIdProveedor() == idProveedor) {
+               return true;
+             }
+            actual = actual->siguiente;
         }
-        delete[] listaVentas;
-        listaVentas = nuevaLista;
-        capacidadVentas = nuevaCapacidad;
-	}
+        return false;
+    }
+
+    SistemaFarmacia::~SistemaFarmacia() {
+
+        // Las listas enlazadas se encargan de liberar la memoria de sus nodos
+    }
 
 } // namespace
 

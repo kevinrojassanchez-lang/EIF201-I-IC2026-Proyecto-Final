@@ -1,11 +1,14 @@
 ﻿#include "MainWindow.h"
 #include <QVBoxLayout>
 #include <QApplication>
+#include <QCloseEvent>
 
 namespace FarmaSystem {
 
     MainWindow::MainWindow(SistemaFarmacia* sSistema, QWidget* parent) : QMainWindow(parent), sistema(sSistema)
     {
+        if (!sistema->getDatosCargados()) { sistema->cargarDatos(); }
+
         vistas = new QStackedWidget(this);
         setCentralWidget(vistas);
 
@@ -24,6 +27,11 @@ namespace FarmaSystem {
         connect(vistaClientes, &ClientesView::datosActualizados, this, &MainWindow::actualizarBarraEstado);
         connect(vistaClientes, &ClientesView::volverAlMenu, this, &MainWindow::mostrarVistaMenuPrincipal);
 
+        // Proveedores
+        vistaProveedores = new ProveedoresView(sistema);
+        vistas->addWidget(vistaProveedores);
+        connect(vistaProveedores, &ProveedoresView::volverAlMenu, this, &MainWindow::mostrarVistaMenuPrincipal);
+
         // Categorias
         vistaCategorias = new CategoriasView(sistema);
         vistas->addWidget(vistaCategorias);
@@ -35,7 +43,12 @@ namespace FarmaSystem {
         connect(vistaVentas, &VentasView::datosActualizados, this, &MainWindow::actualizarBarraEstado);
         connect(vistaVentas, &VentasView::volverAlMenu, this, &MainWindow::mostrarVistaMenuPrincipal);
 
-		// Mostrar menu principal
+        // Estadisticas                                               / nuevo /
+        vistaEstadisticas = new EstadisticasView(sistema);
+        vistas->addWidget(vistaEstadisticas);
+        connect(vistaEstadisticas, &EstadisticasView::volverAlMenu,this, &MainWindow::mostrarVistaMenuPrincipal);
+
+        // Mostrar menu principal
         vistas->setCurrentIndex(0);
         actualizarBarraEstado();
     }
@@ -50,8 +63,10 @@ namespace FarmaSystem {
 
         QPushButton* botonInventario = new QPushButton("Inventario");
         QPushButton* botonClientes = new QPushButton("Clientes");
+        QPushButton* botonProveedores = new QPushButton("Proveedores");
         QPushButton* botonCategorias = new QPushButton("Categorias");
         QPushButton* botonVentas = new QPushButton("Ventas");
+        QPushButton* botonEstadisticas = new QPushButton("Estadisticas");
         QPushButton* botonSalir = new QPushButton("Salir");
 
 		// widgets al layout
@@ -59,29 +74,31 @@ namespace FarmaSystem {
         layout->addStretch();
         layout->addWidget(botonInventario);
         layout->addWidget(botonClientes);
+        layout->addWidget(botonProveedores);
         layout->addWidget(botonCategorias);
         layout->addWidget(botonVentas);
+        layout->addWidget(botonEstadisticas);
         layout->addStretch();
         layout->addWidget(botonSalir);
 
         // Conexiones a los metodos de navegacion
         connect(botonInventario, &QPushButton::clicked, this, &MainWindow::mostrarVistaInventario);
         connect(botonClientes, &QPushButton::clicked, this, &MainWindow::mostrarVistaClientes);
+        connect(botonProveedores, &QPushButton::clicked, this, &MainWindow::mostrarVistaProveedores);
         connect(botonCategorias, &QPushButton::clicked, this, &MainWindow::mostrarVistaCategorias);
         connect(botonVentas, &QPushButton::clicked, this, &MainWindow::mostrarVistaVentas);
+        connect(botonEstadisticas, &QPushButton::clicked, this, &MainWindow::mostrarVistaEstadisticas);
         connect(botonSalir, &QPushButton::clicked, qApp, &QApplication::quit);
 
         return widget;
     }
 
     void MainWindow::mostrarVistaVentas() {
-       
         vistaVentas->actualizarVista();
         vistas->setCurrentWidget(vistaVentas);
     }
 
     void MainWindow::mostrarVistaCategorias() {
-      
         vistaCategorias->actualizarVista();
         vistas->setCurrentWidget(vistaCategorias);
     }
@@ -94,20 +111,32 @@ namespace FarmaSystem {
         vistas->setCurrentWidget(vistaClientes);
     }
 
+    void MainWindow::mostrarVistaProveedores() {
+        vistas->setCurrentWidget(vistaProveedores);
+    }
+
+    void MainWindow::mostrarVistaEstadisticas() {
+        vistas->setCurrentWidget(vistaEstadisticas);
+    }
+
     void MainWindow::mostrarVistaMenuPrincipal() {
         actualizarBarraEstado();
         vistas->setCurrentIndex(0);
     }
 
     void MainWindow::actualizarBarraEstado() {
-        QString mensaje = QString("Medicamentos: %1 | Clientes: %2")
-            .arg(sistema->getCantMedicamentos())
+        QString mensaje = QString("Medicamentos: %1 | Clientes: %2").arg(sistema->getCantMedicamentos())
             .arg(sistema->getCantClientes());
         this->statusBar()->showMessage(mensaje);
     }
 
     MainWindow::~MainWindow() {
-        // Qt se encarga de borrar los widgets hijos (vistas)
-        // asi que no necesitamos hacer delete a los punteros de las vistas
+        // Qt se encarga de borrar los widgets hijos, no necesitamos hacer delete a los punteros de las vistas
+    }
+
+    void MainWindow::closeEvent(QCloseEvent* event) {
+
+        sistema->guardarDatos();
+        event->accept();
     }
 }

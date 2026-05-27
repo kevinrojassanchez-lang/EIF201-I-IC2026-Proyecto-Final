@@ -2,9 +2,9 @@
 
 namespace FarmaSystem {
 
-    MedicamentoMarca::MedicamentoMarca(int id, std::string nombre, double precio, bool receta, int stock, std::string pais, bool promo)
-        : Medicamento(id, nombre, precio, receta, stock), paisOrigen(pais), estadoEnPromocion(promo) {}
-
+    MedicamentoMarca::MedicamentoMarca(int id, std::string nombre, double precio, bool receta, int stock, std::string pais, bool promo, int idProveedor)
+        : Medicamento(id, nombre, precio, receta, stock, idProveedor), paisOrigen(pais), estadoEnPromocion(promo) {
+    }
     std::string MedicamentoMarca::getCategoria() const { 
         return "Marca"; }
 
@@ -25,6 +25,21 @@ namespace FarmaSystem {
 
     std::string MedicamentoMarca::getInfoExtra() const {
         return "Origen: " + paisOrigen + " | Promocion: " + (estadoEnPromocion ? "Si" : "No"); }
+
+    std::string MedicamentoMarca::getPaisOrigen() const {
+        return paisOrigen;
+    }
+
+    bool MedicamentoMarca::getPromocion() const {
+        return estadoEnPromocion;
+    }
+
+    std::string MedicamentoMarca::toFile() const {
+
+        return getCategoria() + "|" + std::to_string(getID()) + "|" + getNombre() + "|" + std::to_string(getPrecio()) + "|" +
+            std::to_string(getStock()) + "|" + (getReceta() ? "1" : "0") + "|" + std::to_string(getIdProveedor())
+            + "|" + paisOrigen + "|" + (getPromocion() ? "1" : "0");
+    }
 
     MedicamentoMarca::~MedicamentoMarca() {}
 }

@@ -62,8 +62,7 @@ namespace FarmaSystem {
         layoutPrincipal->setColumnStretch(0, 1);
         layoutPrincipal->setColumnStretch(1, 2);
 
-        listaCategorias->setCurrentRow(0);
-        actualizarVistaCategorias();
+        QTimer::singleShot(0, this, [=]() { listaCategorias->setCurrentRow(0); actualizarVistaCategorias(); });
 
         timerBorde->start(500);
 
@@ -76,21 +75,28 @@ namespace FarmaSystem {
 
     void CategoriasView::mostrarCategoriaSeleccionada() {
 
-        if (listaCategorias->currentItem() != nullptr) {
+        QListWidgetItem* item = listaCategorias->currentItem();
+        if (item == nullptr) return;
 
-            QString categoria = listaCategorias->currentItem()->text();
-            listaMedicamentosCategoria->clear();
-            infoCategoria->clear();
+        QString categoria = item->text();
 
-            for (int i = 0; i < sistema->getCantMedicamentos(); i++) {
-                Medicamento* medicamento = sistema->getMedicamentoPorIndice(i);
-                if (medicamento != nullptr) {
+        listaMedicamentosCategoria->clear();
+        infoCategoria->clear();
 
-                    if (QString::fromStdString(medicamento->getCategoria()).compare(categoria, Qt::CaseInsensitive) == 0) {
-                        QListWidgetItem* item = new QListWidgetItem(QString::fromStdString(medicamento->getNombre()));
-                        item->setData(Qt::UserRole, medicamento->getID());
-                        listaMedicamentosCategoria->addItem(item);
-                    }
+        for (int i = 0; i < sistema->getCantMedicamentos(); i++) {
+            Medicamento* medicamento = sistema->getMedicamentoPorIndice(i);
+
+            if (medicamento != nullptr) {
+
+                if (QString::fromStdString(medicamento->getCategoria())
+                    .compare(categoria, Qt::CaseInsensitive) == 0) {
+
+                    QListWidgetItem* newItem =
+                        new QListWidgetItem(QString::fromStdString(medicamento->getNombre()));
+
+                    newItem->setData(Qt::UserRole, medicamento->getID());
+
+                    listaMedicamentosCategoria->addItem(newItem);
                 }
             }
         }

@@ -1,0 +1,2 @@
+Generico|1|Panadol|100.000000|19|0|1|acetaminofen
+Generico|2|acetaminofen|14.000000|5|0|1|acetaminofen

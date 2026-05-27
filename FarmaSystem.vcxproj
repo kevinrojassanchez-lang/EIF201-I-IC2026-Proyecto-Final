@@ -155,8 +155,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ArchivoCarga.cpp" />
+    <ClCompile Include="ArchivoGuardado.cpp" />
     <ClCompile Include="CategoriasView.cpp" />
     <ClCompile Include="Cliente.cpp" />
+    <ClCompile Include="Estadisticas.cpp" />
+    <ClCompile Include="EstadisticasView.cpp" />
+    <ClCompile Include="ListaClientes.cpp" />
+    <ClCompile Include="ListaMedicamentos.cpp" />
+    <ClCompile Include="ListaProveedores.cpp" />
+    <ClCompile Include="ListaVentas.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="InventarioView.cpp" />
     <ClCompile Include="MainWindow.cpp" />
@@ -164,23 +172,39 @@
     <ClCompile Include="MedicamentoControlado.cpp" />
     <ClCompile Include="MedicamentoGenerico.cpp" />
     <ClCompile Include="MedicamentoMarca.cpp" />
+    <ClCompile Include="ProveedoresView.cpp" />
     <ClCompile Include="RecursosUI.cpp" />
     <ClCompile Include="SistemaFarmacia.cpp" />
     <ClCompile Include="ClientesView.cpp" />
+    <ClCompile Include="Proveedor.cpp" />
     <ClCompile Include="Venta.cpp" />
     <ClCompile Include="VentasView.cpp" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="CategoriasView.h" />
+    <ClInclude Include="ArchivoCarga.h" />
+    <ClInclude Include="ArchivoGuardado.h" />
     <ClInclude Include="Cliente.h" />
     <QtMoc Include="VentasView.h" />
     <QtMoc Include="MainWindow.h" />
     <QtMoc Include="ClientesView.h" />
     <QtMoc Include="InventarioView.h" />
+    <ClInclude Include="Estadisticas.h" />
+    <QtMoc Include="EstadisticasView.h" />
+    <ClInclude Include="ListaClientes.h" />
+    <ClInclude Include="ListaProveedores.h" />
+    <ClInclude Include="ListaVentas.h" />
+    <ClInclude Include="NodoCliente.h" />
+    <ClInclude Include="NodoMedicamento.h" />
+    <ClInclude Include="NodoProveedor.h" />
+    <ClInclude Include="NodoVenta.h" />
+    <ClInclude Include="Proveedor.h" />
+    <ClInclude Include="ListaMedicamentos.h" />
     <ClInclude Include="Medicamento.h" />
     <ClInclude Include="MedicamentoControlado.h" />
     <ClInclude Include="MedicamentoGenerico.h" />
     <ClInclude Include="MedicamentoMarca.h" />
+    <QtMoc Include="ProveedoresView.h" />
     <ClInclude Include="RecursosUI.h" />
     <ClInclude Include="SistemaFarmacia.h" />
     <ClInclude Include="Venta.h" />

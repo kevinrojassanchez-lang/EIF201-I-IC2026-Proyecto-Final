@@ -43,6 +43,36 @@
     <ClCompile Include="RecursosUI.cpp">
       <Filter>Cpp files</Filter>
     </ClCompile>
+    <ClCompile Include="Proveedor.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="ProveedoresView.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="ListaClientes.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="ListaMedicamentos.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="ListaProveedores.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="ListaVentas.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchivoCarga.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchivoGuardado.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="Estadisticas.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="EstadisticasView.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cliente.h">
@@ -69,6 +99,42 @@
     <ClInclude Include="RecursosUI.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="ListaMedicamentos.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Proveedor.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ListaProveedores.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ListaClientes.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ListaVentas.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="NodoCliente.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="NodoProveedor.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="NodoVenta.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="NodoMedicamento.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchivoCarga.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchivoGuardado.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="Estadisticas.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="CategoriasView.h">
@@ -84,6 +150,12 @@
       <Filter>Header files</Filter>
     </QtMoc>
     <QtMoc Include="VentasView.h">
+      <Filter>Header files</Filter>
+    </QtMoc>
+    <QtMoc Include="ProveedoresView.h">
+      <Filter>Header files</Filter>
+    </QtMoc>
+    <QtMoc Include="EstadisticasView.h">
       <Filter>Header files</Filter>
     </QtMoc>
   </ItemGroup>

@@ -119,10 +119,11 @@ namespace FarmaSystem {
 	} 
 
     void ClientesView::filtrarClientes(const QString& texto) {
+
         tabla->clearSelection();
 
         if (texto.isEmpty()) {
-			llenarTablaUI(); // Llenar tabla normalmente si el texto de busqueda est vacio
+            llenarTablaUI();
             return;
         }
 
@@ -136,8 +137,7 @@ namespace FarmaSystem {
 
                 QString cedula = QString::fromStdString(cliente->getCedula());
 
-                if (cedula.contains(texto)) {
-
+                if (cedula.contains(texto, Qt::CaseInsensitive)) {
                     agregarDatos(cliente);
                 }
             }
@@ -146,78 +146,84 @@ namespace FarmaSystem {
 
     void ClientesView::abrirDialogRegistrarCliente() {
 
-		// Crear dialogo
         QDialog dialog(this);
         dialog.setWindowTitle("Registrar");
         QVBoxLayout* layout = new QVBoxLayout(&dialog);
 
-		// Campos de texto
         QLineEdit* editNombre = new QLineEdit();
         editNombre->setPlaceholderText("Nombre Completo");
+
         QLineEdit* editCedula = new QLineEdit();
         editCedula->setPlaceholderText("Cedula de Identidad");
-        
-		// Agregar campos al layout
+
         layout->addWidget(new QLabel("Nombre:"));
         layout->addWidget(editNombre);
         layout->addWidget(new QLabel("Cedula:"));
         layout->addWidget(editCedula);
 
-		// Boton
         QPushButton* botonGuardar = new QPushButton("Guardar");
         layout->addWidget(botonGuardar);
 
-		// Conexion
         connect(botonGuardar, &QPushButton::clicked, [&]() {
 
-			std::string nombre = editNombre->text().toStdString();
-			std::string cedula = editCedula->text().toStdString();
+            std::string nombre = editNombre->text().trimmed().toStdString();
+            std::string cedula = editCedula->text().trimmed().toStdString();
 
             int resultado = sistema->registrarCliente(nombre, cedula);
 
-            if (resultado == 0) {
+            switch (resultado) {
 
+            case 0:
                 QMessageBox::information(&dialog, "FarmaSystem", "Cliente registrado.");
                 llenarTablaUI();
                 emit datosActualizados();
                 dialog.accept();
-            }
+                break;
 
-            else {
+            case 1:
+                QMessageBox::warning(&dialog, "FarmaSystem", "Campos vacios.");
+                break;
 
-                QMessageBox::warning(&dialog, "FarmaSystem", resultado == 2 ? "Cedula Existente." : "Campos vacios.");
+            case 2:
+                QMessageBox::warning(&dialog, "FarmaSystem", "Cedula ya registrada.");
+                break;
+
+            default:
+                QMessageBox::critical(&dialog, "FarmaSystem", "Error interno.");
+                break;
             }
-        });
-        
+            });
+
         dialog.exec();
     }
 
     void ClientesView::eliminarClienteSeleccionado() {
 
-        if (tabla->selectedItems().isEmpty()) { return; }
-        
+        if (tabla->selectedItems().isEmpty()) return;
+
         int filaActual = tabla->currentRow();
         int id = tabla->item(filaActual, 0)->text().toInt();
 
-        if (QMessageBox::question(this, "FarmaSystem", "Eliminar cliente?") == QMessageBox::Yes) {
+        if (QMessageBox::question(this, "FarmaSystem",
+            "Eliminar cliente?") == QMessageBox::Yes) {
 
             if (sistema->eliminarCliente(id)) {
                 llenarTablaUI();
-                emit datosActualizados();  // signal a MainWindow
+                emit datosActualizados();
             }
         }
     }
 
     void ClientesView::toggleFidelidadCliente() {
 
-        if (tabla->selectedItems().isEmpty()) { return; }
+        if (tabla->selectedItems().isEmpty()) return;
 
-		int filaActual = tabla->currentRow();
+        int filaActual = tabla->currentRow();
         int id = tabla->item(filaActual, 0)->text().toInt();
 
         sistema->toggleFidelidad(id);
         llenarTablaUI();
-		emit datosActualizados();
+        emit datosActualizados();
     }
 
     bool ClientesView::eventFilter(QObject* obj, QEvent* event) {
@@ -251,35 +257,31 @@ namespace FarmaSystem {
         tabla->setItem(fila, 3, new QTableWidgetItem(estado));
     }
 
-    void FarmaSystem::ClientesView::showEvent(QShowEvent* event) {
-       
-        QWidget::showEvent(event); // Llama a la implementacion base
+    void ClientesView::showEvent(QShowEvent* event) {
+
+        QWidget::showEvent(event);
+
         tabla->clearSelection();
         tabla->setCurrentCell(-1, -1);
         textoBuscarCliente->clear();
+        textoBuscarCliente->clearFocus();
+
         this->setFocus();
 
         RecursosUI ui;
-
         ui.cambiarColorGrid(tabla, false);
 
-        actualizarEstadoBotones(); // Asegura que los botones se bloqueen
+        actualizarEstadoBotones();
     }
 
     void ClientesView::actualizarEstadoBotones() {
 
-        // Si la lista de items seleccionados no esta vacia, devuelve true
         bool tieneSeleccion = !tabla->selectedItems().isEmpty();
 
         botonEliminar->setEnabled(tieneSeleccion);
-        botonFidelidad->setEnabled(tieneSeleccion); 
-        RecursosUI ui;
+        botonFidelidad->setEnabled(tieneSeleccion);
 
-        if (tieneSeleccion) {
-            ui.cambiarColorGrid(tabla, true);
-        }
-        else {
-            ui.cambiarColorGrid(tabla, false);
-        }
+        RecursosUI ui;
+        ui.cambiarColorGrid(tabla, tieneSeleccion);
     }
 }

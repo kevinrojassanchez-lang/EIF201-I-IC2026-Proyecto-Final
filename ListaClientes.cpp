@@ -1,0 +1,170 @@
+#include "ListaClientes.h"
+#include <iostream>
+
+namespace FarmaSystem {
+
+    ListaClientes::ListaClientes()
+        : cabeza(nullptr), cola(nullptr), tamano(0) {
+    }
+
+    ListaClientes::~ListaClientes() {
+        NodoCliente* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            NodoCliente* temp = actual->siguiente;
+
+            delete actual->dato;
+            delete actual;
+
+            actual = temp;
+        }
+
+        cabeza = nullptr;
+        cola = nullptr;
+
+        std::cout << "[ListaClientes destruida]" << std::endl;
+    }
+
+    void ListaClientes::agregar(Cliente* cli) {
+
+        NodoCliente* nuevo = new NodoCliente(cli);
+
+        if (cabeza == nullptr) {
+
+            cabeza = nuevo;
+            cola = nuevo;
+        }
+        else {
+
+            nuevo->anterior = cola;
+            cola->siguiente = nuevo;
+            cola = nuevo;
+        }
+
+        tamano++;
+    }
+
+    NodoCliente* ListaClientes::getCabeza() const {
+
+        return cabeza;
+    }
+
+    int ListaClientes::cantidad() const {
+
+        return tamano;
+    }
+
+    Cliente* ListaClientes::obtener(int indice) {
+
+        if (indice < 0 || indice >= tamano) {
+
+            return nullptr;
+        }
+
+        NodoCliente* actual = cabeza;
+
+        for (int i = 0; i < indice; i++) {
+
+            actual = actual->siguiente;
+        }
+
+        return actual->dato;
+    }
+
+    Cliente* ListaClientes::buscarPorId(int id) {
+
+        NodoCliente* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            if (actual->dato->getID() == id) {
+
+                return actual->dato;
+            }
+
+            actual = actual->siguiente;
+        }
+
+        return nullptr;
+    }
+
+    Cliente* ListaClientes::buscarPorCedula(std::string cedula) {
+
+        NodoCliente* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            if (actual->dato->getCedula() == cedula) {
+
+                return actual->dato;
+            }
+
+            actual = actual->siguiente;
+        }
+
+        return nullptr;
+    }
+
+    bool ListaClientes::eliminar(int id) {
+
+        NodoCliente* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            if (actual->dato->getID() == id) {
+
+                if (actual->anterior != nullptr) {
+
+                    actual->anterior->siguiente = actual->siguiente;
+                }
+                else {
+
+                    cabeza = actual->siguiente;
+                }
+
+                if (actual->siguiente != nullptr) {
+
+                    actual->siguiente->anterior = actual->anterior;
+                }
+                else {
+
+                    cola = actual->anterior;
+                }
+
+                delete actual->dato;
+                delete actual;
+
+                actual = nullptr;
+
+                tamano--;
+
+                return true;
+            }
+
+            actual = actual->siguiente;
+        }
+
+        return false;
+    }
+
+    void ListaClientes::limpiar() {
+
+        NodoCliente* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            NodoCliente* temp = actual->siguiente;
+
+            delete actual->dato;
+            delete actual;
+
+            actual = temp;
+        }
+
+        cabeza = nullptr;
+        cola = nullptr;
+        tamano = 0;
+    }
+
+}

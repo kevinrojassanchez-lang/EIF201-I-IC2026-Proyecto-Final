@@ -21,18 +21,19 @@ namespace FarmaSystem {
     private:
         SistemaFarmacia* sistema;
 
-        // UI Components
-        bool bordeIluminado = true;
         QComboBox* comboClientesVenta;
         QComboBox* comboMedicamentosVenta;
         QSpinBox* spinCantidadVenta;
         QCheckBox* checkRecetaVenta;
+
         QLabel* lblSubtotalVenta;
         QLabel* lblTotalVenta;
-        QTableWidget* tablaVentas;
-        QTimer* timerBorde;
 
-        // Metodos internos
+        QTableWidget* tablaVentas;
+
+        QComboBox* comboFiltroClientes;
+        QLabel* lblTotalFiltro;
+
         void construirUI();
         void cargarCombosVentas();
         void actualizarTablaVentas();
@@ -40,20 +41,17 @@ namespace FarmaSystem {
         void procesarVentaUI();
         void manejarCambioTextoCantidad(const QString& texto);
         void resetEstadoReceta();
-        
-
-
+        void actualizarFiltroVentas();
 
     public:
         VentasView(SistemaFarmacia* sistema, QWidget* parent = nullptr);
-        void actualizarVista(); // Se llama al entrar a la pantalla
+        void actualizarVista();
 
     signals:
         void datosActualizados();
         void volverAlMenu();
-
-
     };
+
 }
 
 #endif
