@@ -1,6 +1,7 @@
 #ifndef LISTAPROVEEDORES_H
 #define LISTAPROVEEDORES_H
 
+#include <fstream>
 #include "NodoProveedor.h"
 #include <string>
 
@@ -29,7 +30,7 @@ namespace FarmaSystem {
         Proveedor* buscarPorNombre(std::string nombre);
 
         bool eliminar(int id, bool tieneMedicamentosAsociados);
-
+        void guardarEnArchivo(std::ofstream& archivo);
         void limpiar();
     };
 

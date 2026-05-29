@@ -33,6 +33,7 @@ namespace FarmaSystem {
             << " | Precio: " << std::fixed << std::setprecision(2) << precio << " CRC"
             << " | Stock: " << stock << " | Receta: " << (getReceta() ? "Si" : "No")
             << " | Prov ID: " << idProveedor;
+
         return oss.str();
     }
 

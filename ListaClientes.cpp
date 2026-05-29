@@ -1,6 +1,7 @@
 #include "ListaClientes.h"
 #include <iostream>
 
+
 namespace FarmaSystem {
 
     ListaClientes::ListaClientes()
@@ -8,22 +9,7 @@ namespace FarmaSystem {
     }
 
     ListaClientes::~ListaClientes() {
-        NodoCliente* actual = cabeza;
-
-        while (actual != nullptr) {
-
-            NodoCliente* temp = actual->siguiente;
-
-            delete actual->dato;
-            delete actual;
-
-            actual = temp;
-        }
-
-        cabeza = nullptr;
-        cola = nullptr;
-
-        std::cout << "[ListaClientes destruida]" << std::endl;
+        limpiar();
     }
 
     void ListaClientes::agregar(Cliente* cli) {
@@ -106,6 +92,39 @@ namespace FarmaSystem {
         return nullptr;
     }
 
+    Cliente* ListaClientes::obtenerClienteVIP(ListaVentas& ventas) {
+
+        if (cabeza == nullptr || ventas.cantidad() == 0) {
+            return nullptr;
+        }
+
+        Cliente* vip = nullptr;
+        double mayorGasto = -1.0;
+
+        NodoCliente* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            Cliente* cli = actual->dato;
+
+            if (cli != nullptr) {
+
+                double acumulado =
+                    ventas.calcularAcumuladoPorCliente(cli->getID());
+
+                if (acumulado > mayorGasto) {
+
+                    mayorGasto = acumulado;
+                    vip = cli;
+                }
+            }
+
+            actual = actual->siguiente;
+        }
+
+        return vip;
+    }
+
     bool ListaClientes::eliminar(int id) {
 
         NodoCliente* actual = cabeza;
@@ -146,6 +165,41 @@ namespace FarmaSystem {
         }
 
         return false;
+    }
+
+    void ListaClientes::mostrarTodos() {
+
+        NodoCliente* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            if (actual->dato != nullptr) {
+                actual->dato->mostrar();
+            }
+
+            actual = actual->siguiente;
+        }
+    }
+
+    void ListaClientes::guardarEnArchivo(std::ofstream& archivo) {
+
+        NodoCliente* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            Cliente* cliente = actual->dato;
+
+            if (cliente != nullptr) {
+
+                archivo << cliente->getID() << "|"
+                    << cliente->getNombre() << "|"
+                    << cliente->getCedula() << "|"
+                    << (cliente->getTarjeta() ? "1" : "0")
+                    << "\n";
+            }
+
+            actual = actual->siguiente;
+        }
     }
 
     void ListaClientes::limpiar() {

@@ -8,12 +8,18 @@
 namespace FarmaSystem {
 
     SistemaFarmacia::SistemaFarmacia() : nextIdMedicamento(1), nextIdProveedor(1), nextIdCliente(1),
-        nextIdVenta(1), datosCargados(false)
-    {
+        nextIdVenta(1), datosCargados(false) {
+
         // Las listas enlazadas se inicializan solas con sus constructores por defecto
     }
 
     void SistemaFarmacia::cargarDatos() {
+
+        listaMedicamentos.limpiar();
+        listaClientes.limpiar();
+        listaProveedores.limpiar();
+        listaVentas.limpiar();
+
         ArchivoCarga carga;
         carga.cargarTodo(*this);
         datosCargados = true;
@@ -60,50 +66,26 @@ namespace FarmaSystem {
     }
 
     void SistemaFarmacia::listarMedicamentos() {
-        NodoMedicamento* actual = listaMedicamentos.getCabeza();
-
-        while (actual != nullptr) {
-            Medicamento* med = actual->dato;
-            if (med != nullptr) { med->mostrar(); }
-
-            actual = actual->siguiente;
-        }
+        listaMedicamentos.mostrarTodos();
     }
 
     int SistemaFarmacia::actualizarStock(int id, int cantidad) {
 
-        Medicamento* med = listaMedicamentos.buscarPorId(id);
-        if (med == nullptr) { return 1; }
-        int nuevoStock = med->getStock() + cantidad;
+        Medicamento* medicamento = listaMedicamentos.buscarPorId(id);
+        if (medicamento == nullptr) { return 1; }
+        int nuevoStock = medicamento->getStock() + cantidad;
         if (nuevoStock < 0) { return 2; }
-        med->setStock(nuevoStock);
+        medicamento->setStock(nuevoStock);
         return 0;
     }
 
     bool SistemaFarmacia::eliminarMedicamento(int id) {
+
         Medicamento* medicamento = listaMedicamentos.buscarPorId(id);
 
         if (medicamento == nullptr) { return false; }
+        if (listaVentas.existeVentaDeMedicamento(id)) { return false; }
 
-        NodoVenta* cabeza = listaVentas.getCabeza();
-
-        if (cabeza != nullptr) {
-
-            NodoVenta* actual = cabeza;
-
-            do {
-
-                Venta* ventaActual = actual->dato;
-
-                if (ventaActual != nullptr && ventaActual->getMedicamentoVendido() != nullptr &&
-                    ventaActual->getMedicamentoVendido()->getID() == medicamento->getID()) {
-
-                    return false;
-                }
-                actual = actual->siguiente;
-
-            } while (actual != cabeza);
-        }
         return listaMedicamentos.eliminar(id);
     }
 
@@ -147,13 +129,7 @@ namespace FarmaSystem {
     }
 
     void SistemaFarmacia::listarClientes() {
-        NodoCliente* actual = listaClientes.getCabeza();
-        while (actual != nullptr) {
-            Cliente* cliente = actual->dato;
-            if (cliente != nullptr) { cliente->mostrar(); }
-
-            actual = actual->siguiente;
-        }
+        listaClientes.mostrarTodos();
     }
 
     void SistemaFarmacia::toggleFidelidad(int id) {
@@ -165,24 +141,12 @@ namespace FarmaSystem {
     }
 
     bool SistemaFarmacia::eliminarCliente(int id) {
+
         Cliente* cliente = listaClientes.buscarPorId(id);
+
         if (cliente == nullptr) { return false; }
+        if (listaVentas.existeVentaDeCliente(id)) { return false; }
 
-        NodoVenta* cabeza = listaVentas.getCabeza();
-
-        if (cabeza != nullptr) {
-            NodoVenta* actual = cabeza;
-
-            do {
-
-                Venta* venta = actual->dato;
-                if (venta != nullptr && venta->getIdCliente() == id) {
-                    return false;
-                }
-                actual = actual->siguiente;
-
-            } while (actual != cabeza);
-        }
         return listaClientes.eliminar(id);
     }
 
@@ -217,20 +181,7 @@ namespace FarmaSystem {
 
         if (listaVentas.cantidad() == 0) { return; }
 
-        NodoVenta* cabeza = listaVentas.getCabeza();
-        NodoVenta* actual = cabeza;
-
-        do {
-
-            Venta* v = actual->dato;
-
-            if (v != nullptr) {
-                v->getInfoVenta();
-            }
-
-            actual = actual->siguiente;
-
-        } while (actual != cabeza);
+        listaVentas.imprimirHistorial();
     }
 
     // Implementacion de Getters
@@ -316,17 +267,7 @@ namespace FarmaSystem {
     }
 
     bool SistemaFarmacia::proveedorTieneMedicamentos(int idProveedor) {
-         NodoMedicamento* actual = listaMedicamentos.getCabeza();
-
-        while (actual != nullptr) {
-
-             Medicamento* medicamento = actual->dato;
-             if (medicamento != nullptr && medicamento->getIdProveedor() == idProveedor) {
-               return true;
-             }
-            actual = actual->siguiente;
-        }
-        return false;
+        return listaMedicamentos.tieneProveedor(idProveedor);
     }
 
     SistemaFarmacia::~SistemaFarmacia() {
@@ -334,5 +275,5 @@ namespace FarmaSystem {
         // Las listas enlazadas se encargan de liberar la memoria de sus nodos
     }
 
-} // namespace
+} // namespaceFarmaSystem
 

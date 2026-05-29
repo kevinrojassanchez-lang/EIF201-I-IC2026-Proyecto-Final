@@ -3,8 +3,8 @@
 
 namespace FarmaSystem {
 
-    ListaVentas::ListaVentas()
-        : cola(nullptr), cantidadVentas(0) {
+    ListaVentas::ListaVentas() : cola(nullptr), cantidadVentas(0) {
+
     }
 
     ListaVentas::~ListaVentas() {
@@ -61,10 +61,7 @@ namespace FarmaSystem {
 
     double ListaVentas::calcularIngresosTotales() {
 
-        if (cola == nullptr) {
-
-            return 0;
-        }
+        if (cola == nullptr) { return 0; }
 
         double total = 0;
 
@@ -111,20 +108,115 @@ namespace FarmaSystem {
     void ListaVentas::imprimirHistorial() const {
 
         if (cola == nullptr) {
-
             return;
         }
 
-        NodoVenta* cabeza = getCabeza();
+        NodoVenta* cabeza = cola->siguiente;
         NodoVenta* actual = cabeza;
 
         do {
 
-            std::cout << actual->dato->getInfoVenta() << std::endl;
+            if (actual->dato != nullptr) {
+                actual->dato->getInfoVenta();
+            }
 
             actual = actual->siguiente;
 
         } while (actual != cabeza);
+    }
+
+    bool ListaVentas::existeVentaDeMedicamento(int idMedicamento) {
+
+        if (cola == nullptr) return false;
+
+        NodoVenta* cabeza = cola->siguiente;
+        NodoVenta* actual = cabeza;
+
+        do {
+
+            if (actual->dato != nullptr &&
+                actual->dato->getMedicamentoVendido() != nullptr &&
+                actual->dato->getMedicamentoVendido()->getID() == idMedicamento) {
+                return true;
+            }
+
+            actual = actual->siguiente;
+
+        } while (actual != cabeza);
+
+        return false;
+    }
+
+    bool ListaVentas::existeVentaDeCliente(int idCliente) {
+
+        if (cola == nullptr) return false;
+
+        NodoVenta* cabeza = cola->siguiente;
+        NodoVenta* actual = cabeza;
+
+        do {
+
+            if (actual->dato != nullptr &&
+                actual->dato->getIdCliente() == idCliente) {
+                return true;
+            }
+
+            actual = actual->siguiente;
+
+        } while (actual != cabeza);
+
+        return false;
+    }
+
+    Medicamento* ListaVentas::obtenerMedicamentoMasVendido(ListaMedicamentos& medicamentos) {
+
+        Medicamento* masVendido = nullptr;
+        int maxUnidades = -1;
+
+        NodoMedicamento* actualMed = medicamentos.getCabeza();
+
+        while (actualMed != nullptr) {
+
+            Medicamento* med = actualMed->dato;
+
+            if (med != nullptr) {
+
+                int unidades = calcularUnidadesPorMedicamento(med->getID());
+
+                if (unidades > maxUnidades) {
+                    maxUnidades = unidades;
+                    masVendido = med;
+                }
+            }
+
+            actualMed = actualMed->siguiente;
+        }
+
+        return masVendido;
+    }
+
+    int ListaVentas::calcularUnidadesPorMedicamento(int idMedicamento) {
+
+        int total = 0;
+
+        NodoVenta* actual = cola ? cola->siguiente : nullptr;
+
+        if (actual == nullptr) return 0;
+
+        do {
+
+            if (actual->dato != nullptr &&
+                actual->dato->getMedicamentoVendido() != nullptr &&
+                actual->dato->getMedicamentoVendido()->getID() == idMedicamento) {
+
+                total += actual->dato->getCantidad();
+            }
+
+            actual = actual->siguiente;
+
+        } while (actual != cola->siguiente);
+
+        return total;
     }
 
     void ListaVentas::limpiar() {
@@ -153,6 +245,41 @@ namespace FarmaSystem {
 
         cola = nullptr;
         cantidadVentas = 0;
+    }
+
+    void ListaVentas::guardarEnArchivo(std::ofstream& archivo) {
+
+        if (cola == nullptr) {
+            return;
+        }
+
+        NodoVenta* cabeza = cola->siguiente;
+        NodoVenta* actual = cabeza;
+
+        do {
+
+            Venta* v = actual->dato;
+
+            if (v != nullptr) {
+
+                int idMedicamento = 0;
+
+                if (v->getMedicamentoVendido() != nullptr) {
+                    idMedicamento = v->getMedicamentoVendido()->getID();
+                }
+
+                archivo << v->getId() << "|"
+                    << v->getIdCliente() << "|"
+                    << idMedicamento << "|"
+                    << v->getCantidad() << "|"
+                    << v->getPrecioFinal() << "|"
+                    << v->getFecha()
+                    << "\n";
+            }
+
+            actual = actual->siguiente;
+
+        } while (actual != cabeza);
     }
 
 }

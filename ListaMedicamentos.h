@@ -1,4 +1,5 @@
 #pragma once
+#include <fstream>
 #include "NodoMedicamento.h"
 
 namespace FarmaSystem {
@@ -8,6 +9,7 @@ namespace FarmaSystem {
     private:
 
         NodoMedicamento* cabeza;
+		NodoMedicamento* cola;
         int tamano;
 
     public:
@@ -23,13 +25,15 @@ namespace FarmaSystem {
         Medicamento* obtener(int indice);
 
         Medicamento* buscarPorId(int id);
-
+        Medicamento* obtenerMenorStock();
         Medicamento* buscarPorNombre(std::string texto);
 
         bool eliminar(int id);
-
+        bool tieneProveedor(int idProveedor);
+        int contarPorCategoria(const std::string& cat);
         int cantidad() const;
-
+        void mostrarTodos();
+        void guardarEnArchivo(std::ofstream& archivo);
         void limpiar();
     };
 

@@ -3,7 +3,7 @@
 namespace FarmaSystem {
 
     ListaMedicamentos::ListaMedicamentos()
-        : cabeza(nullptr), tamano(0) {
+        : cabeza(nullptr), cola(nullptr), tamano(0) {
     }
 
     ListaMedicamentos::~ListaMedicamentos() {
@@ -14,20 +14,15 @@ namespace FarmaSystem {
 
         NodoMedicamento* nuevo = new NodoMedicamento(med);
 
-        // Caso lista vacia
         if (cabeza == nullptr) {
 
             cabeza = nuevo;
+            cola = nuevo;
         }
         else {
 
-            NodoMedicamento* actual = cabeza;
-
-            while (actual->siguiente != nullptr) {
-                actual = actual->siguiente;
-            }
-
-            actual->siguiente = nuevo;
+            cola->siguiente = nuevo;
+            cola = nuevo;
         }
 
         tamano++;
@@ -94,6 +89,7 @@ namespace FarmaSystem {
     }
 
     bool ListaMedicamentos::eliminar(int id) {
+
         if (cabeza == nullptr) {
             return false;
         }
@@ -106,14 +102,25 @@ namespace FarmaSystem {
             if (actual->dato != nullptr &&
                 actual->dato->getID() == id) {
 
-                // Si es el primero
+                // Caso: es el primero
                 if (anterior == nullptr) {
 
                     cabeza = actual->siguiente;
+
+                    // Si era el unico nodo
+                    if (cabeza == nullptr) {
+                        cola = nullptr;
+                    }
+
                 }
                 else {
 
                     anterior->siguiente = actual->siguiente;
+
+                    // Si era el último nodo
+                    if (actual == cola) {
+                        cola = anterior;
+                    }
                 }
 
                 delete actual->dato;
@@ -131,8 +138,95 @@ namespace FarmaSystem {
         return false;
     }
 
+    bool ListaMedicamentos::tieneProveedor(int idProveedor) {
+
+        NodoMedicamento* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            if (actual->dato != nullptr &&
+                actual->dato->getIdProveedor() == idProveedor) {
+
+                return true;
+            }
+
+            actual = actual->siguiente;
+        }
+
+        return false;
+    }
+
+    Medicamento* ListaMedicamentos::obtenerMenorStock() {
+
+        if (cabeza == nullptr) return nullptr;
+
+        NodoMedicamento* actual = cabeza;
+        Medicamento* menor = actual->dato;
+
+        while (actual != nullptr) {
+
+            if (actual->dato != nullptr &&
+                actual->dato->getStock() < menor->getStock()) {
+                menor = actual->dato;
+            }
+
+            actual = actual->siguiente;
+        }
+
+        return menor;
+    }
+
+    int ListaMedicamentos::contarPorCategoria(const std::string& cat) {
+
+        int contador = 0;
+        NodoMedicamento* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            if (actual->dato != nullptr &&
+                actual->dato->getCategoria() == cat) {
+                contador++;
+            }
+
+            actual = actual->siguiente;
+        }
+
+        return contador;
+    }
+
     int ListaMedicamentos::cantidad() const {
         return tamano;
+    }
+
+    void ListaMedicamentos::guardarEnArchivo(std::ofstream& archivo) {
+
+        NodoMedicamento* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            Medicamento* medicamento = actual->dato;
+
+            if (medicamento != nullptr) {
+
+                archivo << medicamento->toFile() << "\n";
+            }
+
+            actual = actual->siguiente;
+        }
+    }
+
+    void ListaMedicamentos::mostrarTodos() {
+
+        NodoMedicamento* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            if (actual->dato != nullptr) {
+                actual->dato->mostrar();
+            }
+
+            actual = actual->siguiente;
+        }
     }
 
     void ListaMedicamentos::limpiar() {
@@ -150,6 +244,7 @@ namespace FarmaSystem {
         }
 
         cabeza = nullptr;
+        cola = nullptr;
         tamano = 0;
     }
 

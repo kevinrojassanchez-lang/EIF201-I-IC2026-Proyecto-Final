@@ -9,7 +9,6 @@ namespace FarmaSystem {
 
     ListaProveedores::~ListaProveedores() {
         limpiar();
-        std::cout << "[ListaProveedores destruida]" << std::endl;
     }
 
     void ListaProveedores::agregar(Proveedor* prov) {
@@ -31,13 +30,8 @@ namespace FarmaSystem {
         tamano++;
     }
 
-    NodoProveedor* ListaProveedores::getCabeza() const {
-        return cabeza;
-    }
-
-    int ListaProveedores::cantidad() const {
-        return tamano;
-    }
+    NodoProveedor* ListaProveedores::getCabeza() const { return cabeza; }
+    int ListaProveedores::cantidad() const { return tamano; }
 
     Proveedor* ListaProveedores::obtener(int indice) {
 
@@ -124,6 +118,28 @@ namespace FarmaSystem {
         }
 
         return false;
+    }
+
+    void ListaProveedores::guardarEnArchivo(std::ofstream& archivo) {
+
+        NodoProveedor* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            Proveedor* proveedor = actual->dato;
+
+            if (proveedor != nullptr) {
+
+                archivo << proveedor->getID() << "|"
+                    << proveedor->getNombre() << "|"
+                    << proveedor->getTelefono() << "|"
+                    << proveedor->getEmail() << "|"
+                    << proveedor->getPais()
+                    << "\n";
+            }
+
+            actual = actual->siguiente;
+        }
     }
 
     void ListaProveedores::limpiar() {

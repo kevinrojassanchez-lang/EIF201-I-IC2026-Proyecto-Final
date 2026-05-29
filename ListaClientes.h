@@ -1,5 +1,7 @@
 #pragma once
 
+#include <fstream>
+#include "ListaVentas.h"
 #include "NodoCliente.h"
 #include <string>
 
@@ -25,9 +27,10 @@ namespace FarmaSystem {
         Cliente* buscarPorId(int id);
 
         Cliente* buscarPorCedula(std::string cedula);
-
+        Cliente* obtenerClienteVIP(ListaVentas& ventas);
         bool eliminar(int id);
-
+        void mostrarTodos();
+        void guardarEnArchivo(std::ofstream& archivo);
         void limpiar();
     };
 
