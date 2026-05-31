@@ -25,7 +25,7 @@ namespace FarmaSystem {
         void setEmail(const std::string& nuevoEmail);
         void setPais(const std::string& nuevoPais);
 
-        std::string mostrar() const;
+        std::string toString() const;
         ~Proveedor();
     };
 }

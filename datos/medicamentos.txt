@@ -1,3 +1,6 @@
-Generico|1|Panadol|100.000000|19|0|1|acetaminofen
-Generico|2|acetaminofen|14.000000|3|0|1|acetaminofen
-Controlado|3|Morfina|10.000000|10|1|1|4|500.000000
+Generico|1|CafiAspirina|100.00|9|0|1|Cafeina
+Controlado|2|Clonasepan|1000.00|22|1|1|3|500
+Marca|3|Zepol|2000.00|50|0|2|Costa Rica|1
+Generico|4|CompleC|100.00|15|0|1|Vitamina C
+Marca|5|Pharmaton|8000.00|15|0|2|Argentina|1
+Generico|6|Acetaminofen|150.00|5|0|1|acetaminofen

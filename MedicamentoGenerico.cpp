@@ -6,35 +6,28 @@ namespace FarmaSystem {
         : Medicamento(id, nombre, precio, receta, stock, idProveedor), principioActivo(principio) {
     }
 
+    std::string MedicamentoGenerico::getCategoria() const { return "Generico"; }
 
-    std::string MedicamentoGenerico::getCategoria() const 
-    { return "Generico"; }
-
-    double MedicamentoGenerico::calcularPrecioFinal(int cantidad) const
-    { return (getPrecio() * cantidad) * 0.90; }
-
-    std::string MedicamentoGenerico::getAdvertencia() const 
-    { return "Medicamento Generico: misma eficacia a menor costo."; }
-
-    std::string MedicamentoGenerico::getInfoPrecio() const 
-    { return "Descuento Fijo: 10%"; }
-
-    std::string MedicamentoGenerico::mostrar() const
-    { return Medicamento::mostrar() + " | Principio Activo: " + principioActivo; }
-
-    std::string MedicamentoGenerico::getInfoExtra() const 
-    { return "Principio activo: " + principioActivo; }
-
-    std::string MedicamentoGenerico::getPrincipioActivo() const {
-        return principioActivo;
+    double MedicamentoGenerico::calcularPrecioFinal(int cantidad) const {
+        
+        return (getPrecio() * cantidad) * 0.90;
     }
 
-    std::string MedicamentoGenerico::toFile() const {
-
-        return getCategoria() + "|" + std::to_string(getID()) + "|" + getNombre() + "|" + std::to_string(getPrecio()) + "|" +
-            std::to_string(getStock()) + "|" + (getReceta() ? "1" : "0") + "|" + std::to_string(getIdProveedor())
-            + "|" + principioActivo;
+    std::string MedicamentoGenerico::getAdvertencia() const { 
+        
+        return "Medicamento Generico: misma eficacia a menor costo.";
     }
+
+    std::string MedicamentoGenerico::getInfoPrecio() const  { return "Descuento Fijo: 10%"; }
+
+    std::string MedicamentoGenerico::toString() const { 
+        
+        return Medicamento::toString() + "|" + principioActivo;
+    }
+
+    std::string MedicamentoGenerico::getInfoExtra() const { return "Principio activo: " + principioActivo; }
+
+    std::string MedicamentoGenerico::getPrincipioActivo() const { return principioActivo; }
 
     MedicamentoGenerico::~MedicamentoGenerico() {}
 }

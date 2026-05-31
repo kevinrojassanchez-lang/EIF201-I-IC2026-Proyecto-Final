@@ -18,10 +18,12 @@ namespace FarmaSystem {
     void Proveedor::setEmail(const std::string& nuevoEmail) { email = nuevoEmail; }
     void Proveedor::setPais(const std::string& nuevoPais) { pais = nuevoPais; }
 
-    std::string Proveedor::mostrar() const {
+    std::string Proveedor::toString() const {
+
         std::ostringstream oss;
-        oss << "ID: " << id << " | " << nombre << " | Tel: " << telefono << " | Email: " << email << "Pais : " 
-            << pais << "\n";
+
+        oss << id << "|" << nombre << "|" << telefono << "|" << email << "|" << pais;
+
         return oss.str();
     }
 

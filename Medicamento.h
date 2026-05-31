@@ -29,8 +29,7 @@ namespace FarmaSystem {
         virtual std::string getAdvertencia() const = 0;
         virtual std::string getInfoExtra() const = 0;
         virtual std::string getInfoPrecio() const = 0;
-        virtual std::string toFile() const = 0; // Nuevo metodo
-        virtual std::string mostrar() const;
+		virtual std::string toString() const; // formato para guardar en archivo, incluye categorias
 
         // MedicamentoGenerico
         virtual std::string getPrincipioActivo() const;

@@ -3,8 +3,10 @@
 namespace FarmaSystem {
 
     // Se añade idProveedor a la lista de inicializacion
-    Medicamento::Medicamento(int id, std::string nombre, double precio, bool receta, int stock, int idProveedor)
-        : id(id), nombre(nombre), precio(precio), stock(stock), requiereReceta(receta), idProveedor(idProveedor) {
+    Medicamento::Medicamento(int id, std::string nombre, double precio, bool receta, int stock,
+        int idProveedor) : id(id), nombre(nombre), precio(precio), stock(stock), requiereReceta(receta),
+        idProveedor(idProveedor) {
+ 
     }
 
     // Getters
@@ -26,13 +28,12 @@ namespace FarmaSystem {
     double Medicamento::getDosisMaxima() const { return 0.0; }
     bool Medicamento::excedeDosis(int cantidad) const { return false; }
 
-    std::string Medicamento::mostrar() const {
+    std::string Medicamento::toString() const {
         std::ostringstream oss;
  
-        oss << "ID: " << id << " | Med: " << nombre << " | Categoria: " << getCategoria()
-            << " | Precio: " << std::fixed << std::setprecision(2) << precio << " CRC"
-            << " | Stock: " << stock << " | Receta: " << (getReceta() ? "Si" : "No")
-            << " | Prov ID: " << idProveedor;
+        oss << getCategoria() << "|" << id << "|" << nombre << "|"
+            << std::fixed << std::setprecision(2) << precio  << "|" 
+            << stock << "|" << (getReceta() ? "1" : "0") << "|" << idProveedor;
 
         return oss.str();
     }

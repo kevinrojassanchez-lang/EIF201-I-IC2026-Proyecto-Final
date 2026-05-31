@@ -15,11 +15,11 @@ namespace FarmaSystem {
         std::string getCategoria() const override;
         double calcularPrecioFinal(int cantidad) const override;
         std::string getAdvertencia() const override;
-        std::string mostrar() const override;
+        std::string toString() const override;
         std::string getInfoExtra() const override;
 		std::string getInfoPrecio() const override;
 		std::string getPrincipioActivo() const override;
-        std::string toFile() const override;
+
 
         ~MedicamentoGenerico();
     };

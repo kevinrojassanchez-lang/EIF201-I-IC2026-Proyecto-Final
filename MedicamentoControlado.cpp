@@ -2,42 +2,51 @@
 
 namespace FarmaSystem {
 
-    MedicamentoControlado::MedicamentoControlado(int id, std::string nombre, double precio, int stock, int nivel, double dosis, int idProveedor)
-        : Medicamento(id, nombre, precio, true, stock, idProveedor), dosisMaxima(dosis), dosisPorUnidad(100) // cada unidad equivale a 100 mg
-    {
+    MedicamentoControlado::MedicamentoControlado(int id, std::string nombre, double precio, int stock,
+        int nivel, double dosis, int idProveedor) : Medicamento(id, nombre, precio, true, stock, idProveedor),
+		dosisMaxima(dosis), dosisPorUnidad(100) { // Asumimos 100 mg por unidad como base
+
         if (nivel < 1) { nivelControl = 1; }
+
         else if (nivel > 4) { nivelControl = 4; }
+
         else { nivelControl = nivel; }
     }
     
-    std::string MedicamentoControlado::getCategoria() const {
-        return "Controlado";
-    }
+    std::string MedicamentoControlado::getCategoria() const { return "Controlado"; }
 
-    double MedicamentoControlado::calcularPrecioFinal(int cantidad) const {
-        // recargo del 5% 
-        double subtotal = getPrecio() * cantidad;
-        return subtotal * 1.05;
-    }
-
-    bool MedicamentoControlado::getReceta() const {
-        return true;
-    }
+    bool MedicamentoControlado::getReceta() const { return true; } // Siempre requiere receta
 
     std::string MedicamentoControlado::getAdvertencia() const {
+
         return "VENTA RESTRINGIDA.Requiere receta medica original y control de dosis.";
     }
 
-    std::string MedicamentoControlado::mostrar() const {
-        // llamamos al mostrar del padre y le pegamos lo nuevo
-        return Medicamento::mostrar() + " | Nivel: " + std::to_string(nivelControl) + " | Dosis Max: " + std::to_string(dosisMaxima) + "mg";
+    double MedicamentoControlado::calcularPrecioFinal(int cantidad) const {
+
+        double subtotal = getPrecio() * cantidad;
+
+        return subtotal * 1.05;
     }
 
-    bool MedicamentoControlado::excedeDosis(int cantidad) const {
+    std::string MedicamentoControlado::getInfoExtra() const { // Para mostrar en la GUI
+
+        std::ostringstream oss;
+
+        oss << "Nivel: " << nivelControl << " | Dosis Max: " << std::fixed << std::setprecision(2)
+            << dosisMaxima << "mg";
+
+        return oss.str();
+    }
+
+    bool MedicamentoControlado::excedeDosis(int cantidad) const { // Extras
+
         return (cantidad * dosisPorUnidad) > dosisMaxima;
+
     }
 
-    std::string MedicamentoControlado::getInfoPrecio() const {
+	std::string MedicamentoControlado::getInfoPrecio() const { // Para mostrar en la GUI
+
         std::ostringstream oss;
 
         oss << "Recargo por control: 5%";
@@ -45,31 +54,18 @@ namespace FarmaSystem {
         return oss.str();
     }
 
-    std::string MedicamentoControlado::getInfoExtra() const {
+    int MedicamentoControlado::getNivelControl() const { return nivelControl; }
+
+    double MedicamentoControlado::getDosisMaxima() const { return dosisMaxima; }
+
+    std::string MedicamentoControlado::toString() const {
+
         std::ostringstream oss;
 
-        oss << "Nivel: " << nivelControl
-            << " | Dosis Max: "
-            << std::fixed << std::setprecision(2)
-            << dosisMaxima << " mg";
+        oss << Medicamento::toString() << "|" << nivelControl << "|" << dosisMaxima;
 
         return oss.str();
     }
 
-    int MedicamentoControlado::getNivelControl() const {
-        return nivelControl;
-	}
-
-    double MedicamentoControlado::getDosisMaxima() const {
-        return dosisMaxima;
-    }
-
-    std::string MedicamentoControlado::toFile() const {
-
-        return getCategoria() + "|" + std::to_string(getID()) + "|" + getNombre() + "|" + std::to_string(getPrecio()) + "|" +
-            std::to_string(getStock()) + "|" + "1|" + std::to_string(getIdProveedor()) + "|" +
-            std::to_string(nivelControl) + "|" + std::to_string(dosisMaxima);
-    }
-
-    MedicamentoControlado::~MedicamentoControlado() {}
+	MedicamentoControlado::~MedicamentoControlado() {} // Destructor limpio
 }

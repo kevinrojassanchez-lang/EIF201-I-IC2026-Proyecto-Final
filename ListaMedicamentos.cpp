@@ -3,12 +3,10 @@
 namespace FarmaSystem {
 
     ListaMedicamentos::ListaMedicamentos()
-        : cabeza(nullptr), cola(nullptr), tamano(0) {
+      : cabeza(nullptr), cola(nullptr), tamano(0) {
     }
 
-    ListaMedicamentos::~ListaMedicamentos() {
-        limpiar();
-    }
+    ListaMedicamentos::~ListaMedicamentos() { limpiar(); }
 
     void ListaMedicamentos::agregar(Medicamento* med) {
 
@@ -19,6 +17,7 @@ namespace FarmaSystem {
             cabeza = nuevo;
             cola = nuevo;
         }
+
         else {
 
             cola->siguiente = nuevo;
@@ -28,9 +27,7 @@ namespace FarmaSystem {
         tamano++;
     }
 
-    NodoMedicamento* ListaMedicamentos::getCabeza() const {
-        return cabeza;
-    }
+    NodoMedicamento* ListaMedicamentos::getCabeza() const {  return cabeza; }
 
     Medicamento* ListaMedicamentos::obtener(int indice) {
 
@@ -194,9 +191,7 @@ namespace FarmaSystem {
         return contador;
     }
 
-    int ListaMedicamentos::cantidad() const {
-        return tamano;
-    }
+    int ListaMedicamentos::cantidad() const { return tamano; }
 
     void ListaMedicamentos::guardarEnArchivo(std::ofstream& archivo) {
 
@@ -208,7 +203,7 @@ namespace FarmaSystem {
 
             if (medicamento != nullptr) {
 
-                archivo << medicamento->toFile() << "\n";
+                archivo << medicamento->toString() << "\n";
             }
 
             actual = actual->siguiente;
@@ -222,7 +217,7 @@ namespace FarmaSystem {
         while (actual != nullptr) {
 
             if (actual->dato != nullptr) {
-                actual->dato->mostrar();
+                actual->dato->toString();
             }
 
             actual = actual->siguiente;

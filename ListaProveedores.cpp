@@ -31,6 +31,7 @@ namespace FarmaSystem {
     }
 
     NodoProveedor* ListaProveedores::getCabeza() const { return cabeza; }
+
     int ListaProveedores::cantidad() const { return tamano; }
 
     Proveedor* ListaProveedores::obtener(int indice) {
@@ -130,12 +131,7 @@ namespace FarmaSystem {
 
             if (proveedor != nullptr) {
 
-                archivo << proveedor->getID() << "|"
-                    << proveedor->getNombre() << "|"
-                    << proveedor->getTelefono() << "|"
-                    << proveedor->getEmail() << "|"
-                    << proveedor->getPais()
-                    << "\n";
+				archivo << proveedor->toString() << "\n";
             }
 
             actual = actual->siguiente;

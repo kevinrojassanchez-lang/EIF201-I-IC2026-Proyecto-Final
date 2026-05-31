@@ -8,9 +8,7 @@ namespace FarmaSystem {
         : cabeza(nullptr), cola(nullptr), tamano(0) {
     }
 
-    ListaClientes::~ListaClientes() {
-        limpiar();
-    }
+    ListaClientes::~ListaClientes() { limpiar(); }
 
     void ListaClientes::agregar(Cliente* cli) {
 
@@ -31,15 +29,9 @@ namespace FarmaSystem {
         tamano++;
     }
 
-    NodoCliente* ListaClientes::getCabeza() const {
+    NodoCliente* ListaClientes::getCabeza() const { return cabeza; }
 
-        return cabeza;
-    }
-
-    int ListaClientes::cantidad() const {
-
-        return tamano;
-    }
+    int ListaClientes::cantidad() const { return tamano; }
 
     Cliente* ListaClientes::obtener(int indice) {
 
@@ -105,17 +97,17 @@ namespace FarmaSystem {
 
         while (actual != nullptr) {
 
-            Cliente* cli = actual->dato;
+            Cliente* cliente = actual->dato;
 
-            if (cli != nullptr) {
+            if (cliente != nullptr) {
 
-                double acumulado =
-                    ventas.calcularAcumuladoPorCliente(cli->getID());
+				int idCliente = cliente->getID();
+                double acumulado = ventas.calcularAcumuladoPorCliente(idCliente);
 
                 if (acumulado > mayorGasto) {
 
                     mayorGasto = acumulado;
-                    vip = cli;
+                    vip = cliente;
                 }
             }
 
@@ -137,6 +129,7 @@ namespace FarmaSystem {
 
                     actual->anterior->siguiente = actual->siguiente;
                 }
+
                 else {
 
                     cabeza = actual->siguiente;
@@ -146,6 +139,7 @@ namespace FarmaSystem {
 
                     actual->siguiente->anterior = actual->anterior;
                 }
+
                 else {
 
                     cola = actual->anterior;
@@ -174,7 +168,8 @@ namespace FarmaSystem {
         while (actual != nullptr) {
 
             if (actual->dato != nullptr) {
-                actual->dato->mostrar();
+
+                actual->dato->toString();
             }
 
             actual = actual->siguiente;
@@ -191,11 +186,7 @@ namespace FarmaSystem {
 
             if (cliente != nullptr) {
 
-                archivo << cliente->getID() << "|"
-                    << cliente->getNombre() << "|"
-                    << cliente->getCedula() << "|"
-                    << (cliente->getTarjeta() ? "1" : "0")
-                    << "\n";
+                archivo << cliente->toString() << "\n";
             }
 
             actual = actual->siguiente;

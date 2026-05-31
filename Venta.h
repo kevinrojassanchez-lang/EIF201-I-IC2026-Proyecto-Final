@@ -24,7 +24,7 @@ namespace FarmaSystem {
         double getPrecioFinal() const;
         std::string getFecha() const;
         Medicamento* getMedicamentoVendido() const;
-        std::string getInfoVenta() const; // Factura
+        std::string toString() const; 
 
         ~Venta();
     };

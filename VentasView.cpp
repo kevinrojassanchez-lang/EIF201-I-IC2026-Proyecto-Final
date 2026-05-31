@@ -43,8 +43,8 @@ namespace FarmaSystem {
 
         tablaVentas = new QTableWidget(this);
 
-        tablaVentas->setColumnCount(5);
-        tablaVentas->setHorizontalHeaderLabels({ "ID", "Fecha", "Cliente", "Cantidad", "Total" });
+        tablaVentas->setColumnCount(6);
+        tablaVentas->setHorizontalHeaderLabels({"ID", "Fecha", "Cliente", "Medicamento", "Cantidad", "Total"});
         tablaVentas->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         tablaVentas->setEditTriggers(QAbstractItemView::NoEditTriggers);
         tablaVentas->setSelectionBehavior(QAbstractItemView::SelectRows);
@@ -164,9 +164,12 @@ namespace FarmaSystem {
                     new QTableWidgetItem(QString::number(v->getIdCliente())));
 
                 tablaVentas->setItem(fila, 3,
-                    new QTableWidgetItem(QString::number(v->getCantidad())));
+                    new QTableWidgetItem(QString::fromStdString(v->getMedicamentoVendido()->getNombre())));
 
                 tablaVentas->setItem(fila, 4,
+                    new QTableWidgetItem(QString::number(v->getCantidad())));
+
+                tablaVentas->setItem(fila, 5,
                     new QTableWidgetItem("CRC " + QString::number(v->getPrecioFinal(), 'f', 2)));
             }
         }
@@ -306,10 +309,16 @@ namespace FarmaSystem {
                         new QTableWidgetItem(QString::number(v->getIdCliente())));
 
                     tablaVentas->setItem(fila, 3,
-                        new QTableWidgetItem(QString::number(v->getCantidad())));
+                        new QTableWidgetItem(
+                            QString::fromStdString(
+                                v->getMedicamentoVendido()->getNombre())));
 
                     tablaVentas->setItem(fila, 4,
-                        new QTableWidgetItem("CRC " + QString::number(v->getPrecioFinal(), 'f', 2)));
+                        new QTableWidgetItem(QString::number(v->getCantidad())));
+
+                    tablaVentas->setItem(fila, 5,
+                        new QTableWidgetItem(
+                            "CRC " + QString::number(v->getPrecioFinal(), 'f', 2)));
                 }
             }
         }

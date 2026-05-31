@@ -10,6 +10,7 @@ namespace FarmaSystem {
 
         this->precioUnitario = medicamentoVendido->getPrecio();
         this->precioFinal = precioFinal;
+
     }
 
     int Venta::getId() const { return id; }
@@ -18,27 +19,17 @@ namespace FarmaSystem {
     double Venta::getPrecioFinal() const { return precioFinal; }
     Medicamento* Venta::getMedicamentoVendido() const { return medicamentoVendido; }
     std::string Venta::getFecha() const { return fecha; }
-    std::string Venta::getNombreMedicamento() const {
 
-        if (medicamentoVendido != nullptr) {
-            return medicamentoVendido->getNombre();
-        }
+    std::string Venta::getNombreMedicamento() const {
+        if (medicamentoVendido != nullptr) { return medicamentoVendido->getNombre(); }
         return "Desconocido";
     }
 
-    std::string Venta::getInfoVenta() const {
+    std::string Venta::toString() const {
         std::ostringstream oss;
 
-        oss << "=========== FACTURA ===========+" << "\n";
-        oss << "Venta #: " << id << "\n";
-        oss << "Cliente ID: " << idCliente << "\n";
-        oss << "Fecha: " << fecha << "\n";
-        oss << "--------------------------------\n";
-        oss << "Medicamento: " << getNombreMedicamento() << "\n";
-        oss << "Cantidad: " << cantidad << "\n";
-        oss << "Precio Unitario: CRC" << std::fixed << std::setprecision(2) << precioUnitario << "\n";
-        oss << "Total: CRC" << std::fixed << std::setprecision(2) << precioFinal << "\n";
-        oss << "================================+\n";
+        oss << id << "|" << idCliente << "|" << medicamentoVendido->getID() << "|" << cantidad << "|"
+            << precioFinal << "|" << fecha;
 
         return oss.str();
     }

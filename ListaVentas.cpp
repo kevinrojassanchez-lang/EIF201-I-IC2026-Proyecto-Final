@@ -95,8 +95,8 @@ namespace FarmaSystem {
 
             if (actual->dato->getIdCliente() == idCliente) {
 
-                total += actual->dato->getPrecioFinal();
-            }
+				total += actual->dato->getPrecioFinal(); // getPrecioFinal ya incluye el 
+            }                                             // calculo del precio unitario por cantidad
 
             actual = actual->siguiente;
 
@@ -117,7 +117,7 @@ namespace FarmaSystem {
         do {
 
             if (actual->dato != nullptr) {
-                actual->dato->getInfoVenta();
+                actual->dato->toString();
             }
 
             actual = actual->siguiente;
@@ -149,15 +149,14 @@ namespace FarmaSystem {
 
     bool ListaVentas::existeVentaDeCliente(int idCliente) {
 
-        if (cola == nullptr) return false;
+        if (cola == nullptr) { return false; }
 
         NodoVenta* cabeza = cola->siguiente;
         NodoVenta* actual = cabeza;
 
         do {
 
-            if (actual->dato != nullptr &&
-                actual->dato->getIdCliente() == idCliente) {
+            if (actual->dato != nullptr && actual->dato->getIdCliente() == idCliente) {
                 return true;
             }
 
@@ -170,29 +169,31 @@ namespace FarmaSystem {
 
     Medicamento* ListaVentas::obtenerMedicamentoMasVendido(ListaMedicamentos& medicamentos) {
 
-        Medicamento* masVendido = nullptr;
+        Medicamento* medicamentoMasVendido = nullptr;
         int maxUnidades = -1;
 
-        NodoMedicamento* actualMed = medicamentos.getCabeza();
+        NodoMedicamento* actualMedicamento = medicamentos.getCabeza();
 
-        while (actualMed != nullptr) {
+        while (actualMedicamento != nullptr) {
 
-            Medicamento* med = actualMed->dato;
+            Medicamento* medicamento = actualMedicamento->dato;
 
-            if (med != nullptr) {
+            if (medicamento != nullptr) {
 
-                int unidades = calcularUnidadesPorMedicamento(med->getID());
+				int idMedicamento = medicamento->getID();
+                int unidades = calcularUnidadesPorMedicamento(idMedicamento);
 
                 if (unidades > maxUnidades) {
+
                     maxUnidades = unidades;
-                    masVendido = med;
+                    medicamentoMasVendido = medicamento;
                 }
             }
 
-            actualMed = actualMed->siguiente;
+            actualMedicamento = actualMedicamento->siguiente;
         }
 
-        return masVendido;
+        return medicamentoMasVendido;
     }
 
     int ListaVentas::calcularUnidadesPorMedicamento(int idMedicamento) {
@@ -201,7 +202,7 @@ namespace FarmaSystem {
 
         NodoVenta* actual = cola ? cola->siguiente : nullptr;
 
-        if (actual == nullptr) return 0;
+        if (actual == nullptr) { return 0; }
 
         do {
 
@@ -258,23 +259,11 @@ namespace FarmaSystem {
 
         do {
 
-            Venta* v = actual->dato;
+            Venta* venta = actual->dato;
 
-            if (v != nullptr) {
+            if (venta != nullptr) {
 
-                int idMedicamento = 0;
-
-                if (v->getMedicamentoVendido() != nullptr) {
-                    idMedicamento = v->getMedicamentoVendido()->getID();
-                }
-
-                archivo << v->getId() << "|"
-                    << v->getIdCliente() << "|"
-                    << idMedicamento << "|"
-                    << v->getCantidad() << "|"
-                    << v->getPrecioFinal() << "|"
-                    << v->getFecha()
-                    << "\n";
+                archivo << venta->toString() << "\n";
             }
 
             actual = actual->siguiente;

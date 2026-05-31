@@ -6,16 +6,22 @@ namespace FarmaSystem {
     ArchivoGuardado::ArchivoGuardado() {
 
         rutaProveedores_ = "datos/proveedores.txt";
+
         rutaMedicamentos_ = "datos/medicamentos.txt";
+
         rutaClientes_ = "datos/clientes.txt";
+
         rutaVentas_ = "datos/ventas.txt";
     }
 
     void ArchivoGuardado::guardarTodo(SistemaFarmacia& sistema) {
 
         guardarProveedores(sistema);
+
         guardarMedicamentos(sistema);
+
         guardarClientes(sistema);
+
         guardarVentas(sistema);
     }
 

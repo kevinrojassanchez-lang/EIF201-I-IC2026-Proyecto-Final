@@ -12,7 +12,6 @@ namespace FarmaSystem {
         rutaMedicamentos_ = "datos/medicamentos.txt";
         rutaClientes_ = "datos/clientes.txt";
         rutaVentas_ = "datos/ventas.txt";
-
         validas_ = 0;
         descartadas_ = 0;
     }

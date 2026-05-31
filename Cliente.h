@@ -20,7 +20,7 @@ namespace FarmaSystem {
         bool getTarjeta() const;
         void setTarjeta(bool estado);
         // Metodo para la rubrica (sin cout)
-        std::string mostrar() const;
+        std::string toString() const;
 
         ~Cliente(); // Destructor
     };
