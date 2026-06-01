@@ -11,8 +11,8 @@
 
 namespace FarmaSystem {
     
-    ClientesView::ClientesView(SistemaFarmacia* s, QWidget* parent) : QWidget(parent), sistema(s) 
-    {
+    ClientesView::ClientesView(SistemaFarmacia* s, QWidget* parent) : QWidget(parent), sistema(s) {
+
         construirUI();
         llenarTablaUI();
     }
@@ -123,7 +123,9 @@ namespace FarmaSystem {
         tabla->clearSelection();
 
         if (texto.isEmpty()) {
+
             llenarTablaUI();
+
             return;
         }
 
@@ -138,8 +140,10 @@ namespace FarmaSystem {
                 QString cedula = QString::fromStdString(cliente->getCedula());
 
                 if (cedula.contains(texto, Qt::CaseInsensitive)) {
+
                     agregarDatos(cliente);
                 }
+            
             }
         }
     }
@@ -192,47 +196,52 @@ namespace FarmaSystem {
                 QMessageBox::critical(&dialog, "FarmaSystem", "Error interno.");
                 break;
             }
-            });
+        });
 
         dialog.exec();
     }
 
     void ClientesView::eliminarClienteSeleccionado() {
 
-        if (tabla->selectedItems().isEmpty()) return;
+        if (tabla->selectedItems().isEmpty()) { return; }
 
         int filaActual = tabla->currentRow();
         int id = tabla->item(filaActual, 0)->text().toInt();
 
-        if (QMessageBox::question(this, "FarmaSystem",
-            "Eliminar cliente?") == QMessageBox::Yes) {
+        if (QMessageBox::question(this, "FarmaSystem", "Eliminar cliente?") == QMessageBox::Yes) {
 
             if (sistema->eliminarCliente(id)) {
+
                 llenarTablaUI();
+
                 emit datosActualizados();
             }
+            else {
+                QMessageBox::critical(this,
+                    "FarmaSystem", "Error al eliminar cliente:\n Verifique cedula o historial de ventas");
+			}
         }
     }
 
     void ClientesView::toggleFidelidadCliente() {
 
-        if (tabla->selectedItems().isEmpty()) return;
+        if (tabla->selectedItems().isEmpty()) { return; }
 
         int filaActual = tabla->currentRow();
+
         int id = tabla->item(filaActual, 0)->text().toInt();
 
         sistema->toggleFidelidad(id);
+
         llenarTablaUI();
+
         emit datosActualizados();
     }
 
     bool ClientesView::eventFilter(QObject* obj, QEvent* event) {
 
-		// limpia seleccion de la tabla al hacer focus en el buscador para evitar confusiones visuales
-        if (obj == textoBuscarCliente && event->type() == QEvent::FocusIn)
-        { tabla->clearSelection(); }
+        if (obj == textoBuscarCliente && event->type() == QEvent::FocusIn) { tabla->clearSelection(); }
 
-        // Retorna el evento normalmente para que funcione todo como se espera
         return QWidget::eventFilter(obj, event);
     }
 
@@ -247,28 +256,31 @@ namespace FarmaSystem {
 		// Crear  fila 
         int fila = tabla->rowCount();
 
-        // Insertar Fila
+        // Insertar fila
         tabla->insertRow(fila);
 
-		// Agregar celda de la fila
+		// Carga de dato a cada columna de la fila
         tabla->setItem(fila, 0, new QTableWidgetItem(id));
         tabla->setItem(fila, 1, new QTableWidgetItem(nombre));
         tabla->setItem(fila, 2, new QTableWidgetItem(cedula));
         tabla->setItem(fila, 3, new QTableWidgetItem(estado));
     }
 
+	// Limpia seleccion, resetea buscador y actualiza estado de botones cada vez que se muestra la vista
     void ClientesView::showEvent(QShowEvent* event) {
 
         QWidget::showEvent(event);
 
         tabla->clearSelection();
         tabla->setCurrentCell(-1, -1);
+
         textoBuscarCliente->clear();
         textoBuscarCliente->clearFocus();
 
         this->setFocus();
 
         RecursosUI ui;
+
         ui.cambiarColorGrid(tabla, false);
 
         actualizarEstadoBotones();
@@ -279,9 +291,11 @@ namespace FarmaSystem {
         bool tieneSeleccion = !tabla->selectedItems().isEmpty();
 
         botonEliminar->setEnabled(tieneSeleccion);
+
         botonFidelidad->setEnabled(tieneSeleccion);
 
         RecursosUI ui;
+
         ui.cambiarColorGrid(tabla, tieneSeleccion);
     }
 }

@@ -23,14 +23,11 @@ namespace FarmaSystem {
         NodoMedicamento* getCabeza() const;
 
         Medicamento* obtener(int indice);
-
         Medicamento* buscarPorId(int id);
-        Medicamento* obtenerMenorStock();
         Medicamento* buscarPorNombre(std::string texto);
 
         bool eliminar(int id);
         bool tieneProveedor(int idProveedor);
-        int contarPorCategoria(const std::string& cat);
         int cantidad() const;
         void mostrarTodos();
         void guardarEnArchivo(std::ofstream& archivo);

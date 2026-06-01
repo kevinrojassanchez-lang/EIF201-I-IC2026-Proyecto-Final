@@ -84,39 +84,6 @@ namespace FarmaSystem {
         return nullptr;
     }
 
-    Cliente* ListaClientes::obtenerClienteVIP(ListaVentas& ventas) {
-
-        if (cabeza == nullptr || ventas.cantidad() == 0) {
-            return nullptr;
-        }
-
-        Cliente* vip = nullptr;
-        double mayorGasto = -1.0;
-
-        NodoCliente* actual = cabeza;
-
-        while (actual != nullptr) {
-
-            Cliente* cliente = actual->dato;
-
-            if (cliente != nullptr) {
-
-				int idCliente = cliente->getID();
-                double acumulado = ventas.calcularAcumuladoPorCliente(idCliente);
-
-                if (acumulado > mayorGasto) {
-
-                    mayorGasto = acumulado;
-                    vip = cliente;
-                }
-            }
-
-            actual = actual->siguiente;
-        }
-
-        return vip;
-    }
-
     bool ListaClientes::eliminar(int id) {
 
         NodoCliente* actual = cabeza;

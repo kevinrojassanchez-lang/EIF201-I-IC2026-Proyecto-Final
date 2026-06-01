@@ -27,7 +27,7 @@ namespace FarmaSystem {
 
         layoutPrincipal->addWidget(titulo);
 
-        // PANEL INFORMACION
+        // PANEL 
 
         QFrame* panelInfo = new QFrame;
 
@@ -245,10 +245,7 @@ namespace FarmaSystem {
             );
         }
 
-        lblIngresos->setText(
-            "Ingresos totales: CRC " +
-            QString::number(ingresos, 'f', 2)
-        );
+        lblIngresos->setText("Ingresos totales: CRC " + QString::number(ingresos, 'f', 2));
 
         actualizarGraficoCategorias();
     }

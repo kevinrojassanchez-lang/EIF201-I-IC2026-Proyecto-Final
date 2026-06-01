@@ -164,7 +164,7 @@ namespace FarmaSystem {
 
     void RecursosUI::aplicarEstiloVentana(QWidget* ventana) {
         ventana->setStyleSheet(
-            "background-color: #2b2b2b;"
+            "background-color: #1f1f1f;"
             "color: #e0e0e0;"
         );
     }

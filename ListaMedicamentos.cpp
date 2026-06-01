@@ -153,44 +153,6 @@ namespace FarmaSystem {
         return false;
     }
 
-    Medicamento* ListaMedicamentos::obtenerMenorStock() {
-
-        if (cabeza == nullptr) return nullptr;
-
-        NodoMedicamento* actual = cabeza;
-        Medicamento* menor = actual->dato;
-
-        while (actual != nullptr) {
-
-            if (actual->dato != nullptr &&
-                actual->dato->getStock() < menor->getStock()) {
-                menor = actual->dato;
-            }
-
-            actual = actual->siguiente;
-        }
-
-        return menor;
-    }
-
-    int ListaMedicamentos::contarPorCategoria(const std::string& cat) {
-
-        int contador = 0;
-        NodoMedicamento* actual = cabeza;
-
-        while (actual != nullptr) {
-
-            if (actual->dato != nullptr &&
-                actual->dato->getCategoria() == cat) {
-                contador++;
-            }
-
-            actual = actual->siguiente;
-        }
-
-        return contador;
-    }
-
     int ListaMedicamentos::cantidad() const { return tamano; }
 
     void ListaMedicamentos::guardarEnArchivo(std::ofstream& archivo) {

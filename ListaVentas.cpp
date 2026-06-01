@@ -59,52 +59,6 @@ namespace FarmaSystem {
         return actual->dato;
     }
 
-    double ListaVentas::calcularIngresosTotales() {
-
-        if (cola == nullptr) { return 0; }
-
-        double total = 0;
-
-        NodoVenta* cabeza = getCabeza();
-        NodoVenta* actual = cabeza;
-
-        do {
-
-            total += actual->dato->getPrecioFinal();
-
-            actual = actual->siguiente;
-
-        } while (actual != cabeza);
-
-        return total;
-    }
-
-    double ListaVentas::calcularAcumuladoPorCliente(int idCliente) {
-
-        if (cola == nullptr) {
-
-            return 0;
-        }
-
-        double total = 0;
-
-        NodoVenta* cabeza = getCabeza();
-        NodoVenta* actual = cabeza;
-
-        do {
-
-            if (actual->dato->getIdCliente() == idCliente) {
-
-				total += actual->dato->getPrecioFinal(); // getPrecioFinal ya incluye el 
-            }                                             // calculo del precio unitario por cantidad
-
-            actual = actual->siguiente;
-
-        } while (actual != cabeza);
-
-        return total;
-    }
-
     void ListaVentas::imprimirHistorial() const {
 
         if (cola == nullptr) {
@@ -165,59 +119,6 @@ namespace FarmaSystem {
         } while (actual != cabeza);
 
         return false;
-    }
-
-    Medicamento* ListaVentas::obtenerMedicamentoMasVendido(ListaMedicamentos& medicamentos) {
-
-        Medicamento* medicamentoMasVendido = nullptr;
-        int maxUnidades = -1;
-
-        NodoMedicamento* actualMedicamento = medicamentos.getCabeza();
-
-        while (actualMedicamento != nullptr) {
-
-            Medicamento* medicamento = actualMedicamento->dato;
-
-            if (medicamento != nullptr) {
-
-				int idMedicamento = medicamento->getID();
-                int unidades = calcularUnidadesPorMedicamento(idMedicamento);
-
-                if (unidades > maxUnidades) {
-
-                    maxUnidades = unidades;
-                    medicamentoMasVendido = medicamento;
-                }
-            }
-
-            actualMedicamento = actualMedicamento->siguiente;
-        }
-
-        return medicamentoMasVendido;
-    }
-
-    int ListaVentas::calcularUnidadesPorMedicamento(int idMedicamento) {
-
-        int total = 0;
-
-        NodoVenta* actual = cola ? cola->siguiente : nullptr;
-
-        if (actual == nullptr) { return 0; }
-
-        do {
-
-            if (actual->dato != nullptr &&
-                actual->dato->getMedicamentoVendido() != nullptr &&
-                actual->dato->getMedicamentoVendido()->getID() == idMedicamento) {
-
-                total += actual->dato->getCantidad();
-            }
-
-            actual = actual->siguiente;
-
-        } while (actual != cola->siguiente);
-
-        return total;
     }
 
     void ListaVentas::limpiar() {

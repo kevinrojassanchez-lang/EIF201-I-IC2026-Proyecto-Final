@@ -11,8 +11,9 @@
 
 namespace FarmaSystem {
 
-    ProveedoresView::ProveedoresView(SistemaFarmacia* sSistema, QWidget* parent) : QWidget(parent), sistema(sSistema)
-    {
+    ProveedoresView::ProveedoresView(SistemaFarmacia* sSistema, QWidget* parent) : 
+        QWidget(parent), sistema(sSistema) {
+
         construirUI();
         llenarTablaUI();
     }
@@ -22,15 +23,17 @@ namespace FarmaSystem {
         RecursosUI ui;
 
         QVBoxLayout* layout = new QVBoxLayout(this);
+
         QHBoxLayout* botonesLayout = new QHBoxLayout();
 
         titulo = new QLabel("Gestion de Proveedores");
+
         ui.aplicarTituloNeon(titulo);
 
         tabla = new QTableWidget;
+
         tabla->setColumnCount(5);
         tabla->setHorizontalHeaderLabels({ "ID", "Nombre", "Telefono", "Email", "Pais" });
-
         tabla->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         tabla->setSelectionBehavior(QAbstractItemView::SelectRows);
         tabla->setSelectionMode(QAbstractItemView::SingleSelection);
@@ -64,9 +67,7 @@ namespace FarmaSystem {
         connect(botonEditar, &QPushButton::clicked, this, &ProveedoresView::abrirDialogEditar);
         connect(botonEliminar, &QPushButton::clicked, this, &ProveedoresView::eliminarProveedor);
         connect(botonVolver, &QPushButton::clicked, this, &ProveedoresView::volverAlMenu);
-
-        connect(tabla, &QTableWidget::itemSelectionChanged,
-            this, &ProveedoresView::actualizarEstadoBotones);
+        connect(tabla, &QTableWidget::itemSelectionChanged, this, &ProveedoresView::actualizarEstadoBotones);
     }
 
     void ProveedoresView::llenarTablaUI() {
@@ -76,19 +77,20 @@ namespace FarmaSystem {
 
         for (int i = 0; i < sistema->getListaProveedores().cantidad(); i++) {
 
-            Proveedor* p = sistema->getListaProveedores().obtener(i);
+            Proveedor* proveedor = sistema->getListaProveedores().obtener(i);
 
-            if (p != nullptr) {
-                agregarDatos(p);
+            if (proveedor != nullptr) {
+
+                agregarDatos(proveedor);
             }
         }
-
         actualizarEstadoBotones();
     }
 
     void ProveedoresView::agregarDatos(Proveedor* p) {
 
         int fila = tabla->rowCount();
+
         tabla->insertRow(fila);
 
         tabla->setItem(fila, 0, new QTableWidgetItem(QString::number(p->getID())));
@@ -130,26 +132,28 @@ namespace FarmaSystem {
 
         connect(&guardar, &QPushButton::clicked, [&]() {
 
-            std::string n = nombre.text().toStdString();
-            std::string t = telefono.text().toStdString();
-            std::string e = email.text().toStdString();
-            std::string pa = pais.text().toStdString();
+            std::string nNombre = nombre.text().toStdString();
+            std::string tTelefono = telefono.text().toStdString();
+            std::string eEmail = email.text().toStdString();
+            std::string pPais = pais.text().toStdString();
 
-            if (n.empty() || t.empty() || e.empty() || pa.empty()) {
+            if (nNombre.empty() || tTelefono.empty() || eEmail.empty() || pPais.empty()) {
+
                 QMessageBox::warning(this, "FarmaSystem", "Campos incompletos");
                 return;
             }
 
-            int r = sistema->registrarProveedor(n, t, e, pa);
+            int resultado = sistema->registrarProveedor(nNombre, tTelefono, eEmail, pPais);
 
-            if (r == 0) {
+            if (resultado == 0) {
+
                 llenarTablaUI();
                 dialog.accept();
             }
             else {
                 QMessageBox::warning(this, "FarmaSystem", "Error al registrar proveedor");
             }
-            });
+        });
 
         dialog.exec();
     }
@@ -161,8 +165,9 @@ namespace FarmaSystem {
         int fila = tabla->currentRow();
         int id = tabla->item(fila, 0)->text().toInt();
 
-        Proveedor* p = sistema->getListaProveedores().buscarPorId(id);
-        if (!p) return;
+        Proveedor* proveedor = sistema->getListaProveedores().buscarPorId(id);
+
+        if (!proveedor) { return; }
 
         QDialog dialog(this);
         dialog.setWindowTitle("Editar Proveedor");
@@ -171,10 +176,10 @@ namespace FarmaSystem {
 
         QLineEdit nombre, telefono, email, pais;
 
-        nombre.setText(QString::fromStdString(p->getNombre()));
-        telefono.setText(QString::fromStdString(p->getTelefono()));
-        email.setText(QString::fromStdString(p->getEmail()));
-        pais.setText(QString::fromStdString(p->getPais()));
+        nombre.setText(QString::fromStdString(proveedor->getNombre()));
+        telefono.setText(QString::fromStdString(proveedor->getTelefono()));
+        email.setText(QString::fromStdString(proveedor->getEmail()));
+        pais.setText(QString::fromStdString(proveedor->getPais()));
 
         QPushButton guardar("Guardar");
 
@@ -186,20 +191,22 @@ namespace FarmaSystem {
 
         connect(&guardar, &QPushButton::clicked, [&]() {
 
-            if (nombre.text().isEmpty() || telefono.text().isEmpty()
-                || email.text().isEmpty() || pais.text().isEmpty()) {
+            if (nombre.text().isEmpty() || telefono.text().isEmpty() ||
+                email.text().isEmpty() || pais.text().isEmpty()) {
+
                 QMessageBox::warning(this, "FarmaSystem", "Campos incompletos");
+
                 return;
             }
 
-            p->setNombre(nombre.text().toStdString());
-            p->setTelefono(telefono.text().toStdString());
-            p->setEmail(email.text().toStdString());
-            p->setPais(pais.text().toStdString());
+            proveedor->setNombre(nombre.text().toStdString());
+            proveedor->setTelefono(telefono.text().toStdString());
+            proveedor->setEmail(email.text().toStdString());
+            proveedor->setPais(pais.text().toStdString());
 
             llenarTablaUI();
             dialog.accept();
-            });
+        });
 
         dialog.exec();
     }
@@ -211,15 +218,15 @@ namespace FarmaSystem {
         int fila = tabla->currentRow();
         int id = tabla->item(fila, 0)->text().toInt();
 
-        if (QMessageBox::question(this, "FarmaSystem",
-            "¿Eliminar proveedor?") == QMessageBox::Yes) {
+        if (QMessageBox::question(this, "FarmaSystem", "Eliminar proveedor?") == QMessageBox::Yes) {
 
             if (sistema->eliminarProveedor(id)) {
                 llenarTablaUI();
             }
+
             else {
-                QMessageBox::warning(this, "FarmaSystem",
-                    "No se puede eliminar, tiene medicamentos asociados.");
+                QMessageBox::warning(this,
+                    "FarmaSystem", "No se puede eliminar, tiene medicamentos asociados.");
             }
         }
     }
@@ -229,6 +236,7 @@ namespace FarmaSystem {
         QWidget::showEvent(event);
 
         tabla->clearSelection();
+
         tabla->setCurrentCell(-1, -1);
 
         actualizarEstadoBotones();

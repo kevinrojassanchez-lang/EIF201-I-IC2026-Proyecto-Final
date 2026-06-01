@@ -68,5 +68,4 @@ namespace FarmaSystem {
 
         archivo.close();
     }
-
 } // namespace FarmaSystem
