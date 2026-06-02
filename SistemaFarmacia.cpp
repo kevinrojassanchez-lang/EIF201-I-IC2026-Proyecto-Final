@@ -4,6 +4,7 @@
 #include "MedicamentoGenerico.h"
 #include "MedicamentoMarca.h"
 #include "MedicamentoControlado.h"
+#include "Estadisticas.h"
 
 namespace FarmaSystem {
 
@@ -343,8 +344,7 @@ namespace FarmaSystem {
         return Estadisticas::obtenerIngresosTotales(listaVentas);
     }
 
-    int SistemaFarmacia::contarPorCategoria(std::string categoria) {
-
+    int SistemaFarmacia::contarPorCategoria(const std::string& categoria) {
         return Estadisticas::contarPorCategoria(listaMedicamentos, categoria);
     }
 

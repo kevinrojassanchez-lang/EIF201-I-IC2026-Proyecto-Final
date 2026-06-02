@@ -1,5 +1,5 @@
 Generico|1|CafiAspirina|100.00|9|0|1|Cafeina
-Controlado|2|Clonasepan|1000.00|22|1|1|3|500
+Controlado|2|Clonasepan|1000.00|20|1|1|3|500
 Marca|3|Zepol|2000.00|46|0|2|Costa Rica|1
 Generico|4|CompleC|100.00|15|0|1|Vitamina C
 Marca|5|Pharmaton|8000.00|15|0|2|Argentina|1

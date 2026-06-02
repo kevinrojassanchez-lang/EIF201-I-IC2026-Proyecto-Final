@@ -3,6 +3,7 @@
 #include "MedicamentoGenerico.h"
 #include "MedicamentoMarca.h"
 #include "MedicamentoControlado.h"
+#include "ValidadorCentral.h"
 
 namespace FarmaSystem {
 
@@ -16,79 +17,16 @@ namespace FarmaSystem {
         descartadas_ = 0;
     }
 
-    // Funciones explicitas de validacion con aritmetica de caracteres
-    bool esTextoEnteroValido(const std::string& texto) {
+    Medicamento* ArchivoCarga::crearMedicamentoDesdeTexto(std::stringstream& ss, const std::string& categoria,
+        int id, const std::string& nombre, double precio, bool receta, int stock, int idProveedor) {
 
-        if (texto.empty()) {
-            return false;
-        }
-
-        for (size_t i = 0; i < texto.length(); i++) {
-
-            char caracter = texto[i];
-
-            if (caracter < '0' || caracter > '9') {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    bool esTextoDecimalValido(const std::string& texto) {
-
-        if (texto.empty()) {
-            return false;
-        }
-
-        int contadorPuntos = 0;
-
-        for (size_t i = 0; i < texto.length(); i++) {
-
-            char caracter = texto[i];
-
-            if (caracter == '.') {
-
-                contadorPuntos++;
-
-                if (contadorPuntos > 1) {
-                    return false;
-                }
-            }
-            else if (caracter < '0' || caracter > '9') {
-
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    Medicamento* ArchivoCarga::crearMedicamentoDesdeTexto(
-        std::stringstream& ss,
-        const std::string& categoria,
-        int id,
-        const std::string& nombre,
-        double precio,
-        bool receta,
-        int stock,
-        int idProveedor)
-    {
         if (categoria == "Generico") {
 
             std::string principio;
 
             if (std::getline(ss, principio, '|')) {
 
-                return new MedicamentoGenerico(
-                    id,
-                    nombre,
-                    precio,
-                    receta,
-                    stock,
-                    principio,
-                    idProveedor
-                );
+                return new MedicamentoGenerico(id, nombre, precio, receta, stock, principio, idProveedor);
             }
         }
         else if (categoria == "Marca") {
@@ -99,18 +37,10 @@ namespace FarmaSystem {
             if (std::getline(ss, paisOrigen, '|') &&
                 std::getline(ss, sPromo, '|')) {
 
-                bool promo = (sPromo == "1");
+                // Usamos el validador central para la bandera binaria de la promocion
+                bool promo = ValidadorCentral::validarBanderaBinaria(sPromo);
 
-                return new MedicamentoMarca(
-                    id,
-                    nombre,
-                    precio,
-                    receta,
-                    stock,
-                    paisOrigen,
-                    promo,
-                    idProveedor
-                );
+                return new MedicamentoMarca(id, nombre, precio, receta, stock, paisOrigen, promo, idProveedor);
             }
         }
         else if (categoria == "Controlado") {
@@ -121,27 +51,12 @@ namespace FarmaSystem {
             if (std::getline(ss, sNivel, '|') &&
                 std::getline(ss, sDosis, '|')) {
 
-                bool nivelValido = esTextoEnteroValido(sNivel);
-                bool dosisValida = esTextoDecimalValido(sDosis);
+               
+                // Si viene una letra, tira un throw que atrapara cargarMedicamentos
+                int nivel = ValidadorCentral::validarYConvertirEntero(sNivel);
+                double dosis = ValidadorCentral::validarYConvertirDecimal(sDosis);
 
-                if (nivelValido && dosisValida) {
-
-                    int nivel = 0;
-                    double dosis = 0.0;
-
-                    std::stringstream(sNivel) >> nivel;
-                    std::stringstream(sDosis) >> dosis;
-
-                    return new MedicamentoControlado(
-                        id,
-                        nombre,
-                        precio,
-                        stock,
-                        nivel,
-                        dosis,
-                        idProveedor
-                    );
-                }
+                return new MedicamentoControlado(id, nombre, precio, stock, nivel, dosis, idProveedor);
             }
         }
 
@@ -171,8 +86,12 @@ namespace FarmaSystem {
 
         while (std::getline(archivo, linea)) {
 
-            if (!linea.empty()) {
+            if (linea.empty()) {
+                descartadas_++;
+                continue; 
+            }
 
+            try {
                 std::stringstream ss(linea);
 
                 std::string sId;
@@ -181,40 +100,22 @@ namespace FarmaSystem {
                 std::string email;
                 std::string pais;
 
-                if (std::getline(ss, sId, '|') &&
-                    std::getline(ss, nombre, '|') &&
-                    std::getline(ss, telefono, '|') &&
-                    std::getline(ss, email, '|') &&
-                    std::getline(ss, pais, '|')) {
+                
+                if (!(std::getline(ss, sId, '|') && std::getline(ss, nombre, '|') && 
+                    std::getline(ss, telefono, '|') && std::getline(ss, email, '|') && 
+                    std::getline(ss, pais, '|'))) {
 
-                    if (esTextoEnteroValido(sId)) {
-
-                        int id = 0;
-
-                        std::stringstream(sId) >> id;
-
-                        sistema.cargarProveedorDesdeArchivo(
-                            id,
-                            nombre,
-                            telefono,
-                            email,
-                            pais
-                        );
-
-                        validas_++;
-                    }
-                    else {
-
-                        descartadas_++;
-                    }
+                    throw std::runtime_error("Linea de proveedor incompleta");
                 }
-                else {
 
-                    descartadas_++;
-                }
+                int id = ValidadorCentral::validarYConvertirEntero(sId);
+
+                sistema.cargarProveedorDesdeArchivo(id, nombre, telefono, email, pais);
+
+                validas_++;
             }
-            else {
-
+            catch (const std::exception& e) {
+                // Cualquier error cae en esta unica red de seguridad
                 descartadas_++;
             }
         }
@@ -234,8 +135,12 @@ namespace FarmaSystem {
 
         while (std::getline(archivo, linea)) {
 
-            if (!linea.empty()) {
+            if (linea.empty()) {
+                descartadas_++;
+                continue; 
+            }
 
+            try {
                 std::stringstream ss(linea);
 
                 std::string sCategoria;
@@ -246,86 +151,36 @@ namespace FarmaSystem {
                 std::string sReceta;
                 std::string sIdProveedor;
 
-                if (std::getline(ss, sCategoria, '|') &&
+                if (!(std::getline(ss, sCategoria, '|') &&
                     std::getline(ss, sId, '|') &&
                     std::getline(ss, nombre, '|') &&
                     std::getline(ss, sPrecio, '|') &&
                     std::getline(ss, sStock, '|') &&
                     std::getline(ss, sReceta, '|') &&
-                    std::getline(ss, sIdProveedor, '|')) {
+                    std::getline(ss, sIdProveedor, '|'))) {
 
-                    bool datosValidos = true;
-
-                    if (!esTextoEnteroValido(sId)) {
-                        datosValidos = false;
-                    }
-
-                    if (!esTextoDecimalValido(sPrecio)) {
-                        datosValidos = false;
-                    }
-
-                    if (!esTextoEnteroValido(sStock)) {
-                        datosValidos = false;
-                    }
-
-                    if (!esTextoEnteroValido(sIdProveedor)) {
-                        datosValidos = false;
-                    }
-
-                    if (sReceta != "0" && sReceta != "1") {
-                        datosValidos = false;
-                    }
-
-                    if (datosValidos) {
-
-                        int id = 0;
-                        int stock = 0;
-                        int idProveedor = 0;
-
-                        double precio = 0.0;
-
-                        std::stringstream(sId) >> id;
-                        std::stringstream(sStock) >> stock;
-                        std::stringstream(sIdProveedor) >> idProveedor;
-                        std::stringstream(sPrecio) >> precio;
-
-                        bool receta = (sReceta == "1");
-
-                        Medicamento* medicamento =
-                            crearMedicamentoDesdeTexto(
-                                ss,
-                                sCategoria,
-                                id,
-                                nombre,
-                                precio,
-                                receta,
-                                stock,
-                                idProveedor
-                            );
-
-                        if (medicamento != nullptr) {
-
-                            sistema.cargarMedicamentoDesdeArchivo(medicamento);
-
-                            validas_++;
-                        }
-                        else {
-
-                            descartadas_++;
-                        }
-                    }
-                    else {
-
-                        descartadas_++;
-                    }
+                    throw std::runtime_error("Linea de medicamento incompleta");
                 }
-                else {
 
-                    descartadas_++;
+                // Si encuentra una letra donde va un numero, dispara un throw automatico
+                int id = ValidadorCentral::validarYConvertirEntero(sId);
+                double precio = ValidadorCentral::validarYConvertirDecimal(sPrecio);
+                int stock = ValidadorCentral::validarYConvertirEntero(sStock);
+                int idProveedor = ValidadorCentral::validarYConvertirEntero(sIdProveedor);
+                bool receta = ValidadorCentral::validarBanderaBinaria(sReceta);
+
+                Medicamento* medicamento = crearMedicamentoDesdeTexto(ss, sCategoria, id, nombre, precio,
+                    receta, stock, idProveedor);
+
+                if (medicamento == nullptr) {
+                    throw std::runtime_error("Error al instanciar tipo de medicamento");
                 }
+
+                sistema.cargarMedicamentoDesdeArchivo(medicamento);
+                validas_++;
             }
-            else {
-
+            catch (const std::exception& e) {
+      
                 descartadas_++;
             }
         }
@@ -345,8 +200,12 @@ namespace FarmaSystem {
 
         while (std::getline(archivo, linea)) {
 
-            if (!linea.empty()) {
+            if (linea.empty()) {
+                descartadas_++;
+                continue;
+            }
 
+            try {
                 std::stringstream ss(linea);
 
                 std::string sId;
@@ -354,47 +213,25 @@ namespace FarmaSystem {
                 std::string cedula;
                 std::string sTarjeta;
 
-                if (std::getline(ss, sId, '|') &&
+                if (!(std::getline(ss, sId, '|') &&
                     std::getline(ss, nombre, '|') &&
                     std::getline(ss, cedula, '|') &&
-                    std::getline(ss, sTarjeta, '|')) {
+                    std::getline(ss, sTarjeta, '|'))) {
 
-                    bool datosValidos = true;
-
-                    if (!esTextoEnteroValido(sId)) {
-                        datosValidos = false;
-                    }
-
-                    if (sTarjeta != "0" && sTarjeta != "1") {
-                        datosValidos = false;
-                    }
-
-                    if (datosValidos) {
-
-                        int id = 0;
-
-                        std::stringstream(sId) >> id;
-
-                        sistema.cargarClienteDesdeArchivo(
-                            id,
-                            nombre,
-                            cedula,
-                            (sTarjeta == "1")
-                        );
-
-                        validas_++;
-                    }
-                    else {
-
-                        descartadas_++;
-                    }
+                    // Si faltan columnas en la linea, disparamos el descarte
+                    throw std::runtime_error("Linea incompleta");
                 }
-                else {
 
-                    descartadas_++;
-                }
+                // Si algo esta mal, tira un throw automaticamente y el programa salta al catch
+                int id = ValidadorCentral::validarYConvertirEntero(sId);
+                bool tieneTarjeta = ValidadorCentral::validarBanderaBinaria(sTarjeta);
+
+                // Si todo el control de calidad paso con exito, cargamos el cliente
+                sistema.cargarClienteDesdeArchivo(id, nombre, cedula, tieneTarjeta);
+
+                validas_++;
             }
-            else {
+            catch (const std::exception& e) {
 
                 descartadas_++;
             }
@@ -415,8 +252,12 @@ namespace FarmaSystem {
 
         while (std::getline(archivo, linea)) {
 
-            if (!linea.empty()) {
+            if (linea.empty()) {
+                descartadas_++;
+                continue; 
+            }
 
+            try {
                 std::stringstream ss(linea);
 
                 std::string sId;
@@ -426,82 +267,34 @@ namespace FarmaSystem {
                 std::string sTotal;
                 std::string fecha;
 
-                if (std::getline(ss, sId, '|') &&
-                    std::getline(ss, sIdCliente, '|') &&
-                    std::getline(ss, sIdMedicamento, '|') &&
-                    std::getline(ss, sCantidad, '|') &&
-                    std::getline(ss, sTotal, '|') &&
-                    std::getline(ss, fecha, '|')) {
+      
+                if (!(std::getline(ss, sId, '|') && std::getline(ss, sIdCliente, '|') &&
+                    std::getline(ss, sIdMedicamento, '|') && std::getline(ss, sCantidad, '|') &&
+                    std::getline(ss, sTotal, '|') &&  std::getline(ss, fecha, '|'))) {
 
-                    bool ventaValida = true;
-
-                    if (!esTextoEnteroValido(sId)) {
-                        ventaValida = false;
-                    }
-
-                    if (!esTextoEnteroValido(sIdCliente)) {
-                        ventaValida = false;
-                    }
-
-                    if (!esTextoEnteroValido(sIdMedicamento)) {
-                        ventaValida = false;
-                    }
-
-                    if (!esTextoEnteroValido(sCantidad)) {
-                        ventaValida = false;
-                    }
-
-                    if (!esTextoDecimalValido(sTotal)) {
-                        ventaValida = false;
-                    }
-
-                    if (ventaValida) {
-
-                        int idVenta = 0;
-                        int idCliente = 0;
-                        int idMedicamento = 0;
-                        int cantidad = 0;
-
-                        double total = 0.0;
-
-                        std::stringstream(sId) >> idVenta;
-                        std::stringstream(sIdCliente) >> idCliente;
-                        std::stringstream(sIdMedicamento) >> idMedicamento;
-                        std::stringstream(sCantidad) >> cantidad;
-                        std::stringstream(sTotal) >> total;
-
-                        Medicamento* medicamentoAsociado =
-                            sistema.buscarMedicamentoPorID(idMedicamento);
-
-                        if (medicamentoAsociado != nullptr) {
-
-                            sistema.cargarVentaDesdeArchivo(
-                                idVenta,
-                                idCliente,
-                                idMedicamento,
-                                cantidad,
-                                total,
-                                fecha
-                            );
-
-                            validas_++;
-                        }
-                        else {
-
-                            descartadas_++;
-                        }
-                    }
-                    else {
-
-                        descartadas_++;
-                    }
+                    throw std::runtime_error("Linea de venta incompleta");
                 }
-                else {
 
-                    descartadas_++;
+                int idVenta = ValidadorCentral::validarYConvertirEntero(sId);
+                int idCliente = ValidadorCentral::validarYConvertirEntero(sIdCliente);
+                int idMedicamento = ValidadorCentral::validarYConvertirEntero(sIdMedicamento);
+                int cantidad = ValidadorCentral::validarYConvertirEntero(sCantidad);
+                double total = ValidadorCentral::validarYConvertirDecimal(sTotal);
+
+                // Buscar si el medicamento comprado realmente existe
+                Medicamento* medicamentoAsociado = sistema.buscarMedicamentoPorID(idMedicamento);
+
+                if (medicamentoAsociado == nullptr) {
+
+                    throw std::runtime_error("El medicamento de la venta no existe en el sistema");
                 }
+
+                // Si todas las conversiones y busquedas salieron perfectas, se registra la venta circular
+                sistema.cargarVentaDesdeArchivo(idVenta, idCliente, idMedicamento, cantidad, total, fecha);
+
+                validas_++;
             }
-            else {
+            catch (const std::exception& e) {
 
                 descartadas_++;
             }
@@ -510,12 +303,8 @@ namespace FarmaSystem {
         archivo.close();
     }
 
-    int ArchivoCarga::getValidas() const {
-        return validas_;
-    }
+    int ArchivoCarga::getValidas() const { return validas_; }
 
-    int ArchivoCarga::getDescartadas() const {
-        return descartadas_;
-    }
+    int ArchivoCarga::getDescartadas() const { return descartadas_; }
 
 } // namespace FarmaSystem

@@ -7,7 +7,7 @@
 #include "ListaProveedores.h"
 #include "ListaClientes.h"
 #include "ListaVentas.h"
-#include "Estadisticas.h"
+
 
 namespace FarmaSystem { // Namespace
 
@@ -19,7 +19,6 @@ namespace FarmaSystem { // Namespace
         ListaProveedores listaProveedores;   // Nuevo proveedores
 		ListaClientes listaClientes;         // Reemplaza al arreglo dinamico de clientes
 		ListaVentas listaVentas;             // Reemplaza al arreglo dinamico de ventas
-        Estadisticas estadisticas;
         bool datosCargados;
         int nextIdMedicamento, nextIdProveedor, nextIdCliente, nextIdVenta;
 
@@ -82,7 +81,7 @@ namespace FarmaSystem { // Namespace
         Medicamento* obtenerMasVendido();
         Cliente* obtenerClienteVIP();
         double obtenerIngresosTotales();
-        int contarPorCategoria(std::string categoria);
+        int contarPorCategoria(const std::string& categoria);
 
         ~SistemaFarmacia(); // Destructor para liberacion limpia
     };

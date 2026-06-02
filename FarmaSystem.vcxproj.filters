@@ -73,6 +73,7 @@
     <ClCompile Include="EstadisticasView.cpp">
       <Filter>Cpp files</Filter>
     </ClCompile>
+    <ClCompile Include="ValidadorCentral.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cliente.h">
@@ -135,6 +136,7 @@
     <ClInclude Include="Estadisticas.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="ValidadorCentral.h" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="CategoriasView.h">

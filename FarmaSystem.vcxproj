@@ -177,6 +177,7 @@
     <ClCompile Include="SistemaFarmacia.cpp" />
     <ClCompile Include="ClientesView.cpp" />
     <ClCompile Include="Proveedor.cpp" />
+    <ClCompile Include="ValidadorCentral.cpp" />
     <ClCompile Include="Venta.cpp" />
     <ClCompile Include="VentasView.cpp" />
   </ItemGroup>
@@ -207,6 +208,7 @@
     <QtMoc Include="ProveedoresView.h" />
     <ClInclude Include="RecursosUI.h" />
     <ClInclude Include="SistemaFarmacia.h" />
+    <ClInclude Include="ValidadorCentral.h" />
     <ClInclude Include="Venta.h" />
   </ItemGroup>
   <ItemGroup>
