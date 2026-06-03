@@ -34,8 +34,7 @@ namespace FarmaSystem {
             std::string paisOrigen;
             std::string sPromo;
 
-            if (std::getline(ss, paisOrigen, '|') &&
-                std::getline(ss, sPromo, '|')) {
+            if (std::getline(ss, paisOrigen, '|') && std::getline(ss, sPromo, '|')) {
 
                 // Usamos el validador central para la bandera binaria de la promocion
                 bool promo = ValidadorCentral::validarBanderaBinaria(sPromo);
@@ -48,11 +47,9 @@ namespace FarmaSystem {
             std::string sNivel;
             std::string sDosis;
 
-            if (std::getline(ss, sNivel, '|') &&
-                std::getline(ss, sDosis, '|')) {
+            if (std::getline(ss, sNivel, '|') && std::getline(ss, sDosis, '|')) {
 
-               
-                // Si viene una letra, tira un throw que atrapara cargarMedicamentos
+               // Si viene una letra, tira un throw que atrapara cargarMedicamentos
                 int nivel = ValidadorCentral::validarYConvertirEntero(sNivel);
                 double dosis = ValidadorCentral::validarYConvertirDecimal(sDosis);
 
@@ -115,7 +112,7 @@ namespace FarmaSystem {
                 validas_++;
             }
             catch (const std::exception& e) {
-                // Cualquier error cae en esta unica red de seguridad
+                // Cualquier error cae en esta red de seguridad
                 descartadas_++;
             }
         }

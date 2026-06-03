@@ -98,13 +98,13 @@ namespace FarmaSystem {
     int Estadisticas::obtenerIdMasVendido(AcumuladoMedicamento* acumulados, int usados) {
 
         int id = -1;
-        int max = -1;
+        int maximo = -1;
 
         for (int i = 0; i < usados; i++) {
 
-            if (acumulados[i].unidadesVendidas > max) {
+            if (acumulados[i].unidadesVendidas > maximo) {
 
-                max = acumulados[i].unidadesVendidas;
+                maximo = acumulados[i].unidadesVendidas;
 
                 id = acumulados[i].idMedicamento;
             }
