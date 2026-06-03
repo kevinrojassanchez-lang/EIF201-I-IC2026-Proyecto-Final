@@ -58,7 +58,7 @@ namespace FarmaSystem {
         return total;
     }
 
-    void Estadisticas::acumularMedicamentos(ListaVentas& ventas, AcumuladoMedicamento* acumulados,
+    void Estadisticas::acumularMedicamentos(ListaVentas& ventas, int* idsMedicamentos, int* unidadesVendidas,
         int maxCapacidad, int& usados) {
 
         NodoVenta* cabeza = ventas.getCabeza();
@@ -68,73 +68,87 @@ namespace FarmaSystem {
         NodoVenta* actual = cabeza;
 
         do {
+
             if (actual->dato != nullptr && actual->dato->getMedicamentoVendido() != nullptr) {
 
                 int id = actual->dato->getMedicamentoVendido()->getID();
-
                 int cantidad = actual->dato->getCantidad();
 
                 bool encontrado = false;
 
                 for (int i = 0; i < usados; i++) {
-                    if (acumulados[i].idMedicamento == id) {
-                        acumulados[i].unidadesVendidas += cantidad;
+
+                    if (idsMedicamentos[i] == id) {
+
+                        unidadesVendidas[i] += cantidad;
                         encontrado = true;
                         break;
                     }
                 }
 
                 if (!encontrado && usados < maxCapacidad) {
-                    acumulados[usados].idMedicamento = id;
-                    acumulados[usados].unidadesVendidas = cantidad;
+
+                    idsMedicamentos[usados] = id;
+                    unidadesVendidas[usados] = cantidad;
                     usados++;
                 }
             }
+
             actual = actual->siguiente;
 
         } while (actual != nullptr && actual != cabeza);
     }
 
-    int Estadisticas::obtenerIdMasVendido(AcumuladoMedicamento* acumulados, int usados) {
+    int Estadisticas::obtenerIdMasVendido(int* idsMedicamentos, int* unidadesVendidas, int usados) {
 
         int id = -1;
         int maximo = -1;
 
         for (int i = 0; i < usados; i++) {
 
-            if (acumulados[i].unidadesVendidas > maximo) {
+            if (unidadesVendidas[i] > maximo) {
 
-                maximo = acumulados[i].unidadesVendidas;
-
-                id = acumulados[i].idMedicamento;
+                maximo = unidadesVendidas[i];
+                id = idsMedicamentos[i];
             }
         }
+
         return id;
     }
 
     Medicamento* Estadisticas::obtenerMasVendido(ListaMedicamentos& medicamentos, ListaVentas& ventas) {
 
-        int totalMedicamentos = medicamentos.cantidad();
+        int capacidad = ventas.cantidad();
 
-        if (ventas.cantidad() == 0 || totalMedicamentos == 0) { return nullptr; }
+        if (capacidad == 0 || medicamentos.cantidad() == 0) {
+            return nullptr;
+        }
 
-        AcumuladoMedicamento* acumulados = new AcumuladoMedicamento[totalMedicamentos]{};
+        int* idsMedicamentos = new int[capacidad];
+        int* unidadesVendidas = new int[capacidad];
+
+        for (int i = 0; i < capacidad; i++) {
+
+            idsMedicamentos[i] = -1;
+            unidadesVendidas[i] = 0;
+        }
 
         int usados = 0;
 
-        acumularMedicamentos(ventas, acumulados, totalMedicamentos, usados);
+        acumularMedicamentos(ventas, idsMedicamentos, unidadesVendidas, capacidad, usados);
 
-        int id = obtenerIdMasVendido(acumulados, usados);
+        int id = obtenerIdMasVendido(idsMedicamentos, unidadesVendidas, usados);
 
-        delete[] acumulados;
-
-        acumulados = nullptr;
+        delete[] idsMedicamentos;
+        delete[] unidadesVendidas;
+		idsMedicamentos = nullptr;
+		unidadesVendidas = nullptr;
 
         return medicamentos.buscarPorId(id);
     }
 
-    void Estadisticas::acumularClientes(ListaVentas& ventas, AcumuladoCliente* acumulados, int maxCapacidad,
-        int& usados) {
+    void Estadisticas::acumularClientes(ListaVentas& ventas, int* idsClientes, double* gastosClientes,
+        int maxCapacidad, int& usados) {
 
         NodoVenta* cabeza = ventas.getCabeza();
 
@@ -143,65 +157,81 @@ namespace FarmaSystem {
         NodoVenta* actual = cabeza;
 
         do {
+
             if (actual->dato != nullptr) {
+
                 int id = actual->dato->getIdCliente();
                 double monto = actual->dato->getPrecioFinal();
+
                 bool encontrado = false;
 
                 for (int i = 0; i < usados; i++) {
-                    if (acumulados[i].idCliente == id) {
-                        acumulados[i].totalGastado += monto;
+
+                    if (idsClientes[i] == id) {
+
+                        gastosClientes[i] += monto;
                         encontrado = true;
                         break;
                     }
                 }
 
                 if (!encontrado && usados < maxCapacidad) {
-                    acumulados[usados].idCliente = id;
-                    acumulados[usados].totalGastado = monto;
+
+                    idsClientes[usados] = id;
+                    gastosClientes[usados] = monto;
                     usados++;
                 }
             }
+
             actual = actual->siguiente;
 
         } while (actual != nullptr && actual != cabeza);
     }
 
-    int Estadisticas::obtenerIdVIP(AcumuladoCliente* acumulados, int usados) {
+    int Estadisticas::obtenerIdVIP(int* idsClientes, double* gastosClientes, int usados) {
 
         int idVIP = -1;
         double max = -1;
 
         for (int i = 0; i < usados; i++) {
 
-            if (acumulados[i].totalGastado > max) {
+            if (gastosClientes[i] > max) {
 
-                max = acumulados[i].totalGastado;
-
-                idVIP = acumulados[i].idCliente;
+                max = gastosClientes[i];
+                idVIP = idsClientes[i];
             }
         }
+
         return idVIP;
     }
 
     Cliente* Estadisticas::obtenerClienteVIP(ListaClientes& clientes, ListaVentas& ventas) {
 
-        int totalClientes = clientes.cantidad();
+        int capacidad = ventas.cantidad();
 
-        if (totalClientes == 0 || ventas.cantidad() == 0) { return nullptr; }
+        if (capacidad == 0 || clientes.cantidad() == 0) {
+            return nullptr;
+        }
 
-        
-        AcumuladoCliente* acumulados = new AcumuladoCliente[totalClientes]{}; 
-		// Se inicializan los acumulados a 0 para evitar basura en el campo totalGastado
+        int* idsClientes = new int[capacidad];
+        double* gastosClientes = new double[capacidad];
+
+        for (int i = 0; i < capacidad; i++) {
+
+            idsClientes[i] = -1;
+            gastosClientes[i] = 0.0;
+        }
+
         int usados = 0;
 
-        acumularClientes(ventas, acumulados, totalClientes, usados);
+        acumularClientes(ventas, idsClientes, gastosClientes, capacidad, usados);
 
-        int idVIP = obtenerIdVIP(acumulados, usados);
+        int idVIP = obtenerIdVIP(idsClientes, gastosClientes, usados);
 
-        delete[] acumulados;
-
-        acumulados = nullptr;
+        delete[] idsClientes;
+        delete[] gastosClientes;
+		idsClientes = nullptr;
+		gastosClientes = nullptr;
 
         return clientes.buscarPorId(idVIP);
     }

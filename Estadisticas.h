@@ -12,25 +12,20 @@ namespace FarmaSystem {
 
     private:
 
-        struct AcumuladoCliente {
-            int idCliente;
-            double totalGastado;
-        };
+        // Auxiliares privados para manejo mediante arreglos paralelos
+        static void acumularMedicamentos(ListaVentas& ventas, int* idsMedicamentos, int* unidadesVendidas,
+            int maxCapacidad, int& usados);
 
-        struct AcumuladoMedicamento {
-            int idMedicamento;
-            int unidadesVendidas;
-        };
+        static int obtenerIdMasVendido(int* idsMedicamentos, int* unidadesVendidas, int usados);
 
-        // Auxiliares privados: Se agrega maxCapacidad para proteger la memoria de los arreglos
-        static void acumularMedicamentos(ListaVentas& ventas, AcumuladoMedicamento* acumulados, int maxCapacidad, int& usados);
-        static int obtenerIdMasVendido(AcumuladoMedicamento* acumulados, int usados);
-        static void acumularClientes(ListaVentas& ventas, AcumuladoCliente* acumulados, int maxCapacidad, int& usados);
-        static int obtenerIdVIP(AcumuladoCliente* acumulados, int usados);
+        static void acumularClientes(ListaVentas& ventas, int* idsClientes,double* gastosClientes,
+            int maxCapacidad, int& usados);
+
+        static int obtenerIdVIP(int* idsClientes, double* gastosClientes, int usados);
 
     public:
 
-        // Retorna el medicamento con el stock más bajo (Lista Simple)
+        // Retorna el medicamento con el stock mss bajo (Lista Simple)
         static Medicamento* obtenerMenorStock(ListaMedicamentos& medicamentos);
 
         // Retorna el medicamento más vendido cruzando datos (Lista Simple + Lista Circular)
@@ -42,9 +37,10 @@ namespace FarmaSystem {
         // Calcula la sumatoria de todas las ventas (Lista Circular)
         static double obtenerIngresosTotales(ListaVentas& ventas);
 
-        // Cuenta medicamentos filtrados por su categoría (Lista Simple)
+        // Cuenta medicamentos filtrados por su categoria (Lista Simple)
         static int contarPorCategoria(ListaMedicamentos& medicamentos, const std::string& categoria);
     };
 }
+
 #endif // ESTADISTICAS_H
 
