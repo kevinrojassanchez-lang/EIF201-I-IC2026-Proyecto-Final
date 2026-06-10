@@ -34,10 +34,14 @@ namespace FarmaSystem {
 
         tabla->setColumnCount(5);
         tabla->setHorizontalHeaderLabels({ "ID", "Nombre", "Telefono", "Email", "Pais" });
+        tabla->verticalHeader()->setVisible(false);
         tabla->horizontalHeader()->setSectionResizeMode(QHeaderView::Stretch);
         tabla->setSelectionBehavior(QAbstractItemView::SelectRows);
         tabla->setSelectionMode(QAbstractItemView::SingleSelection);
         tabla->setEditTriggers(QAbstractItemView::NoEditTriggers);
+        tabla->setFocusPolicy(Qt::StrongFocus);
+        tabla->setTabKeyNavigation(false);
+        tabla->setShowGrid(true);
 
         ui.aplicarEstiloTabla(tabla);
 
@@ -75,12 +79,11 @@ namespace FarmaSystem {
         tabla->setRowCount(0);
         tabla->clearSelection();
 
-        for (int i = 0; i < sistema->getListaProveedores().cantidad(); i++) {
+        for (int i = 0; i < sistema->getCantProveedores(); i++) {
 
-            Proveedor* proveedor = sistema->getListaProveedores().obtener(i);
+            Proveedor* proveedor = sistema->getProveedorPorIndice(i);
 
             if (proveedor != nullptr) {
-
                 agregarDatos(proveedor);
             }
         }
@@ -113,32 +116,51 @@ namespace FarmaSystem {
         QDialog dialog(this);
         dialog.setWindowTitle("Registrar Proveedor");
 
-        QVBoxLayout layout(&dialog);
+        RecursosUI ui;
+        ui.aplicarEstiloFormularioDialogo(&dialog);
 
-        QLineEdit nombre, telefono, email, pais;
+        QVBoxLayout* layout = new QVBoxLayout(&dialog);
 
-        nombre.setPlaceholderText("Nombre");
-        telefono.setPlaceholderText("Telefono");
-        email.setPlaceholderText("Email");
-        pais.setPlaceholderText("Pais");
+        // Crear y estilizar etiquetas informativas
+        QLabel* lblNombre = new QLabel("Nombre:");
+        QLabel* lblTelefono = new QLabel("Telefono:");
+        QLabel* lblEmail = new QLabel("Email:");
+        QLabel* lblPais = new QLabel("Pais:");
 
-        QPushButton guardar("Guardar");
+        ui.aplicarLabelInfo(lblNombre);
+        ui.aplicarLabelInfo(lblTelefono);
+        ui.aplicarLabelInfo(lblEmail);
+        ui.aplicarLabelInfo(lblPais);
 
-        layout.addWidget(&nombre);
-        layout.addWidget(&telefono);
-        layout.addWidget(&email);
-        layout.addWidget(&pais);
-        layout.addWidget(&guardar);
+        // Crear y estilizar cajas de texto usando los metodos esteticos de RecursosUI
+        QLineEdit* nombre =   RecursosUI::crearCampoTexto("Ej: Distribuidora Medica");
+        QLineEdit* telefono = RecursosUI::crearCampoTexto("Ej: 8888-8888");
+        QLineEdit* email =    RecursosUI::crearCampoTexto("Ej: contacto@prov.com");
+        QLineEdit* pais =     RecursosUI::crearCampoTexto("Ej: Costa Rica");
 
-        connect(&guardar, &QPushButton::clicked, [&]() {
+        QPushButton* guardar = new QPushButton("Guardar");
+        ui.aplicarEstiloBoton(guardar);
 
-            std::string nNombre = nombre.text().toStdString();
-            std::string tTelefono = telefono.text().toStdString();
-            std::string eEmail = email.text().toStdString();
-            std::string pPais = pais.text().toStdString();
+        // Construccion ordenada del layout con espaciados discretos
+        layout->addWidget(lblNombre);
+        layout->addWidget(nombre);
+        layout->addWidget(lblTelefono);
+        layout->addWidget(telefono);
+        layout->addWidget(lblEmail);
+        layout->addWidget(email);
+        layout->addWidget(lblPais);
+        layout->addWidget(pais);
+        layout->addSpacing(15); // Espacio 
+        layout->addWidget(guardar);
+
+        connect(guardar, &QPushButton::clicked, [&]() {
+
+            std::string nNombre = nombre->text().trimmed().toStdString();
+            std::string tTelefono = telefono->text().trimmed().toStdString();
+            std::string eEmail = email->text().trimmed().toStdString();
+            std::string pPais = pais->text().trimmed().toStdString();
 
             if (nNombre.empty() || tTelefono.empty() || eEmail.empty() || pPais.empty()) {
-
                 QMessageBox::warning(this, "FarmaSystem", "Campos incompletos");
                 return;
             }
@@ -146,7 +168,7 @@ namespace FarmaSystem {
             int resultado = sistema->registrarProveedor(nNombre, tTelefono, eEmail, pPais);
 
             if (resultado == 0) {
-
+                QMessageBox::information(this, "FarmaSystem", "Proveedor registrado");
                 llenarTablaUI();
                 dialog.accept();
             }
@@ -165,47 +187,77 @@ namespace FarmaSystem {
         int fila = tabla->currentRow();
         int id = tabla->item(fila, 0)->text().toInt();
 
-        Proveedor* proveedor = sistema->getListaProveedores().buscarPorId(id);
-
+        Proveedor* proveedor = sistema->buscarProveedorPorID(id);
         if (!proveedor) { return; }
 
         QDialog dialog(this);
         dialog.setWindowTitle("Editar Proveedor");
 
+        RecursosUI ui;
+        ui.aplicarEstiloFormularioDialogo(&dialog);
+
         QVBoxLayout layout(&dialog);
 
-        QLineEdit nombre, telefono, email, pais;
+        // Crear y estilizar etiquetas informativas
+        QLabel* lblNombre = new QLabel("Nombre:");
+        QLabel* lblTelefono = new QLabel("Telefono:");
+        QLabel* lblEmail = new QLabel("Email:");
+        QLabel* lblPais = new QLabel("Pais:");
 
+        ui.aplicarLabelInfo(lblNombre);
+        ui.aplicarLabelInfo(lblTelefono);
+        ui.aplicarLabelInfo(lblEmail);
+        ui.aplicarLabelInfo(lblPais);
+
+        // Crear y estilizar cajas de texto
+        QLineEdit nombre, telefono, email, pais;
+        ui.aplicarEstiloCamposFormulario(&nombre);
+        ui.aplicarEstiloCamposFormulario(&telefono);
+        ui.aplicarEstiloCamposFormulario(&email);
+        ui.aplicarEstiloCamposFormulario(&pais);
+
+        // Cargar datos actuales del modelo
         nombre.setText(QString::fromStdString(proveedor->getNombre()));
         telefono.setText(QString::fromStdString(proveedor->getTelefono()));
         email.setText(QString::fromStdString(proveedor->getEmail()));
         pais.setText(QString::fromStdString(proveedor->getPais()));
 
-        QPushButton guardar("Guardar");
+        QPushButton guardar("Guardar Cambios");
+        ui.aplicarEstiloBoton(&guardar);
 
+        // Construccion ordenada del layout con espaciados
+        layout.addWidget(lblNombre);
         layout.addWidget(&nombre);
+        layout.addWidget(lblTelefono);
         layout.addWidget(&telefono);
+        layout.addWidget(lblEmail);
         layout.addWidget(&email);
+        layout.addWidget(lblPais);
         layout.addWidget(&pais);
+        layout.addSpacing(15);
         layout.addWidget(&guardar);
 
         connect(&guardar, &QPushButton::clicked, [&]() {
 
             if (nombre.text().isEmpty() || telefono.text().isEmpty() ||
                 email.text().isEmpty() || pais.text().isEmpty()) {
-
                 QMessageBox::warning(this, "FarmaSystem", "Campos incompletos");
-
                 return;
             }
 
-            proveedor->setNombre(nombre.text().toStdString());
-            proveedor->setTelefono(telefono.text().toStdString());
-            proveedor->setEmail(email.text().toStdString());
-            proveedor->setPais(pais.text().toStdString());
+            std::string nNombre = nombre.text().trimmed().toStdString();
+            std::string tTelefono = telefono.text().trimmed().toStdString();
+            std::string eEmail = email.text().trimmed().toStdString();
+            std::string pPais = pais.text().trimmed().toStdString();
 
-            llenarTablaUI();
-            dialog.accept();
+            if (sistema->editarProveedor(id, nNombre, tTelefono, eEmail, pPais)) {
+                QMessageBox::information(this, "FarmaSystem", "Proveedor editado con exito");
+                llenarTablaUI();
+                dialog.accept();
+            }
+            else {
+                QMessageBox::warning(this, "FarmaSystem", "Datos invalidos");
+            }
         });
 
         dialog.exec();
@@ -218,7 +270,7 @@ namespace FarmaSystem {
         int fila = tabla->currentRow();
         int id = tabla->item(fila, 0)->text().toInt();
 
-        if (QMessageBox::question(this, "FarmaSystem", "Eliminar proveedor?") == QMessageBox::Yes) {
+        if (QMessageBox::question(this, "FarmaSystem", "Eliminar proveedor") == QMessageBox::Yes) {
 
             if (sistema->eliminarProveedor(id)) {
                 llenarTablaUI();

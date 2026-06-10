@@ -22,6 +22,8 @@ namespace FarmaSystem {
         std::string toString() const override;
 		std::string getInfoExtra() const override; 
 		std::string getInfoPrecio() const override; 
+		bool setPaisOrigen(const std::string& pais) override;
+		void setPromocion(bool estado) override;
 
         ~MedicamentoMarca();
     };

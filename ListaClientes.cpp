@@ -1,15 +1,19 @@
 #include "ListaClientes.h"
-#include <iostream>
-
 
 namespace FarmaSystem {
 
+	// Constructor para inicializar la lista vacia
     ListaClientes::ListaClientes()
         : cabeza(nullptr), cola(nullptr), tamano(0) {
     }
 
-    ListaClientes::~ListaClientes() { limpiar(); }
+	// Destructor para limpiar la lista y liberar memoria
+    ListaClientes::~ListaClientes() { 
 
+        limpiar();
+    }
+
+	// Metodo para agregar un cliente al final de la lista
     void ListaClientes::agregar(Cliente* cli) {
 
         NodoCliente* nuevo = new NodoCliente(cli);
@@ -29,27 +33,50 @@ namespace FarmaSystem {
         tamano++;
     }
 
+	// Metodo para obtener la cabeza de la lista
     NodoCliente* ListaClientes::getCabeza() const { return cabeza; }
 
+	// Metodo para obtener la cantidad total de clientes en la lista
     int ListaClientes::cantidad() const { return tamano; }
 
+	// Metodo para obtener un cliente por su posicion en la lista
     Cliente* ListaClientes::obtener(int indice) {
 
         if (indice < 0 || indice >= tamano) {
-
             return nullptr;
         }
 
-        NodoCliente* actual = cabeza;
+        NodoCliente* actual = nullptr;
 
-        for (int i = 0; i < indice; i++) {
+        if (indice < tamano / 2) {
 
-            actual = actual->siguiente;
+            actual = cabeza;
+
+            int posicion = 0;
+
+            while (posicion < indice) {
+
+                actual = actual->siguiente;
+                posicion++;
+            }
+        }
+        else {
+
+            actual = cola;
+
+            int posicion = tamano - 1;
+
+            while (posicion > indice) {
+
+                actual = actual->anterior;
+                posicion--;
+            }
         }
 
         return actual->dato;
     }
 
+	// Metodo para buscar un cliente por su ID
     Cliente* ListaClientes::buscarPorId(int id) {
 
         NodoCliente* actual = cabeza;
@@ -67,6 +94,7 @@ namespace FarmaSystem {
         return nullptr;
     }
 
+	// Metodo para buscar un cliente por su cedula
     Cliente* ListaClientes::buscarPorCedula(std::string cedula) {
 
         NodoCliente* actual = cabeza;
@@ -84,6 +112,7 @@ namespace FarmaSystem {
         return nullptr;
     }
 
+	// Metodo para eliminar un cliente por su ID
     bool ListaClientes::eliminar(int id) {
 
         NodoCliente* actual = cabeza;
@@ -128,6 +157,7 @@ namespace FarmaSystem {
         return false;
     }
 
+	// Metodo para mostrar todos los clientes en el frontend
     void ListaClientes::mostrarTodos() {
 
         NodoCliente* actual = cabeza;
@@ -143,6 +173,7 @@ namespace FarmaSystem {
         }
     }
 
+	// Metodo para guardar todos los clientes en un archivo de texto
     void ListaClientes::guardarEnArchivo(std::ofstream& archivo) {
 
         NodoCliente* actual = cabeza;
@@ -160,6 +191,7 @@ namespace FarmaSystem {
         }
     }
 
+	// Metodo para limpiar la lista y liberar memoria
     void ListaClientes::limpiar() {
 
         NodoCliente* actual = cabeza;

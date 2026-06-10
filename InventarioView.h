@@ -21,6 +21,7 @@ namespace FarmaSystem {
         QTableWidget* tabla;
         QLineEdit* textoBuscarMedicamento;
         QPushButton* botonEliminar;
+        QPushButton* botonEditar;
         QPushButton* botonStock;
         QPushButton* botonDetalles;
         QLabel* tituloSeccion;
@@ -39,9 +40,8 @@ namespace FarmaSystem {
     private slots:
         void actualizarEstadoBotones();
         void abrirDialogRegistrarMedicamento();
+        void abrirDialogEditarMedicamento();
         void eliminarMedicamentoSeleccionado();
-        void actualizarStockMedicamento();
-        void mostrarDetallesSeleccionado();
         void filtrarMedicamentos(const QString& texto);
 
     signals:

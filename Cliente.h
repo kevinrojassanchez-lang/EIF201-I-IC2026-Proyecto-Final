@@ -4,7 +4,7 @@
 namespace FarmaSystem {
 
     class Cliente {
-    private: // Atributos privados (Encapsulamiento)
+    private: 
         int id;
         std::string nombre;
         std::string cedula;
@@ -19,7 +19,10 @@ namespace FarmaSystem {
         std::string getCedula() const;
         bool getTarjeta() const;
         void setTarjeta(bool estado);
-        // Metodo para la rubrica (sin cout)
+        bool setNombre(const std::string& nNombre);
+		bool setCedula(const std::string& nCedula);
+
+		// Metodo para representar el cliente como string
         std::string toString() const;
 
         ~Cliente(); // Destructor

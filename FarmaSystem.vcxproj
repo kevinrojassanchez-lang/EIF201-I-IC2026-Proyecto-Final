@@ -155,8 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="ArchivoCarga.cpp" />
-    <ClCompile Include="ArchivoGuardado.cpp" />
+    <ClCompile Include="cargadorDatosUI.cpp" />
     <ClCompile Include="CategoriasView.cpp" />
     <ClCompile Include="Cliente.cpp" />
     <ClCompile Include="Estadisticas.cpp" />
@@ -183,8 +182,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="CategoriasView.h" />
-    <ClInclude Include="ArchivoCarga.h" />
-    <ClInclude Include="ArchivoGuardado.h" />
+    <ClInclude Include="cargadorDatosUI.h" />
     <ClInclude Include="Cliente.h" />
     <QtMoc Include="VentasView.h" />
     <QtMoc Include="MainWindow.h" />

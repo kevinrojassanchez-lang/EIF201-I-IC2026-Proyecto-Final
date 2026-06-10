@@ -2,15 +2,19 @@
 
 namespace FarmaSystem {
 
-    MedicamentoControlado::MedicamentoControlado(int id, std::string nombre, double precio, int stock,
-        int nivel, double dosis, int idProveedor) : Medicamento(id, nombre, precio, true, stock, idProveedor),
-		dosisMaxima(dosis), dosisPorUnidad(100) { // Asumimos 100 mg por unidad como base
+    MedicamentoControlado::MedicamentoControlado(int id, std::string nombre, double precio, bool receta,
+        int stock, int nivel, double dosis, int idProveedor): Medicamento(id, nombre, precio, receta, stock,
+            idProveedor), dosisMaxima(dosis), dosisPorUnidad(100) {
 
-        if (nivel < 1) { nivelControl = 1; }
-
-        else if (nivel > 4) { nivelControl = 4; }
-
-        else { nivelControl = nivel; }
+        if (nivel < 1) {
+            nivelControl = 1;
+        }
+        else if (nivel > 4) {
+            nivelControl = 4;
+        }
+        else {
+            nivelControl = nivel;
+        }
     }
     
     std::string MedicamentoControlado::getCategoria() const { return "Controlado"; }
@@ -57,6 +61,18 @@ namespace FarmaSystem {
     int MedicamentoControlado::getNivelControl() const { return nivelControl; }
 
     double MedicamentoControlado::getDosisMaxima() const { return dosisMaxima; }
+    bool MedicamentoControlado::setNivelControl(int nivel) {
+
+        if (nivel < 1 || nivel > 4) { return false; }
+        nivelControl = nivel;
+        return true;
+    }
+    bool MedicamentoControlado::setDosisMaxima(double dosis) {
+
+        if (dosis <= 0) { return false; }
+        dosisMaxima = dosis;
+        return true;
+    }
 
     std::string MedicamentoControlado::toString() const {
 

@@ -61,19 +61,16 @@
     <ClCompile Include="ListaVentas.cpp">
       <Filter>Cpp files</Filter>
     </ClCompile>
-    <ClCompile Include="ArchivoCarga.cpp">
-      <Filter>Cpp files</Filter>
-    </ClCompile>
-    <ClCompile Include="ArchivoGuardado.cpp">
-      <Filter>Cpp files</Filter>
-    </ClCompile>
     <ClCompile Include="Estadisticas.cpp">
       <Filter>Cpp files</Filter>
     </ClCompile>
     <ClCompile Include="EstadisticasView.cpp">
       <Filter>Cpp files</Filter>
     </ClCompile>
-    <ClCompile Include="ValidadorCentral.cpp" />
+    <ClCompile Include="ValidadorCentral.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="cargadorDatosUI.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cliente.h">
@@ -127,16 +124,13 @@
     <ClInclude Include="NodoMedicamento.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="ArchivoCarga.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="ArchivoGuardado.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="Estadisticas.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="ValidadorCentral.h" />
+    <ClInclude Include="ValidadorCentral.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="cargadorDatosUI.h" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="CategoriasView.h">

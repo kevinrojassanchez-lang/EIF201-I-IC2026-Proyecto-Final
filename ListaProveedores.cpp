@@ -1,16 +1,19 @@
 #include "ListaProveedores.h"
-#include <iostream>
 
 namespace FarmaSystem {
 
+	// Constructor para inicializar la lista vacia
     ListaProveedores::ListaProveedores()
         : cabeza(nullptr), cola(nullptr), tamano(0) {
     }
 
+	// Destructor para limpiar la lista y liberar memoria
     ListaProveedores::~ListaProveedores() {
+        
         limpiar();
     }
 
+	// Metodo para agregar un proveedor al final de la lista
     void ListaProveedores::agregar(Proveedor* prov) {
 
         NodoProveedor* nuevo = new NodoProveedor(prov);
@@ -30,25 +33,50 @@ namespace FarmaSystem {
         tamano++;
     }
 
+	// Metodo para obtener la cabeza de la lista
     NodoProveedor* ListaProveedores::getCabeza() const { return cabeza; }
 
+	// Metodo para obtener la cantidad total de proveedores en la lista
     int ListaProveedores::cantidad() const { return tamano; }
 
+	// Metodo para obtener un proveedor por su posicion en la lista
     Proveedor* ListaProveedores::obtener(int indice) {
 
         if (indice < 0 || indice >= tamano) {
             return nullptr;
         }
 
-        NodoProveedor* actual = cabeza;
+        NodoProveedor* actual = nullptr;
 
-        for (int i = 0; i < indice; i++) {
-            actual = actual->siguiente;
+        if (indice < tamano / 2) {
+
+            actual = cabeza;
+
+            int posicion = 0;
+
+            while (posicion < indice) {
+
+                actual = actual->siguiente;
+                posicion++;
+            }
+        }
+        else {
+
+            actual = cola;
+
+            int posicion = tamano - 1;
+
+            while (posicion > indice) {
+
+                actual = actual->anterior;
+                posicion--;
+            }
         }
 
         return actual->dato;
     }
 
+	// Metodo para buscar un proveedor por su nombre
     Proveedor* ListaProveedores::buscarPorNombre(std::string nombre) {
 
         NodoProveedor* actual = cabeza;
@@ -65,6 +93,7 @@ namespace FarmaSystem {
         return nullptr;
     }
 
+	// Metodo para buscar un proveedor por su ID
     Proveedor* ListaProveedores::buscarPorId(int id) {
 
         NodoProveedor* actual = cabeza;
@@ -81,6 +110,7 @@ namespace FarmaSystem {
         return nullptr;
     }
 
+	// Metodo para eliminar un proveedor por su ID
     bool ListaProveedores::eliminar(int id, bool tieneMedicamentosAsociados) {
 
         if (tieneMedicamentosAsociados) {
@@ -121,6 +151,7 @@ namespace FarmaSystem {
         return false;
     }
 
+	// Metodo para guardar todos los proveedores en un archivo de texto
     void ListaProveedores::guardarEnArchivo(std::ofstream& archivo) {
 
         NodoProveedor* actual = cabeza;
@@ -138,6 +169,7 @@ namespace FarmaSystem {
         }
     }
 
+	// Metodo para limpiar la lista y liberar toda la memoria asociada
     void ListaProveedores::limpiar() {
 
         NodoProveedor* actual = cabeza;
@@ -157,4 +189,4 @@ namespace FarmaSystem {
         tamano = 0;
     }
 
-}
+} // namespace FarmaSystem

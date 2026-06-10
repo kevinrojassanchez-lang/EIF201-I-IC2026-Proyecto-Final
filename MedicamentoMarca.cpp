@@ -43,5 +43,15 @@ namespace FarmaSystem {
         return std::string("Descuento 15%: ") + (estadoEnPromocion ? "Si" : "No");
     }
 
+    bool MedicamentoMarca::setPaisOrigen(const std::string& pais) {
+
+        if (pais == "") { return false; }
+        paisOrigen = pais;
+        return true;
+	}
+
+	void MedicamentoMarca::setPromocion(bool estado) { this->estadoEnPromocion = estado; }
+
+
     MedicamentoMarca::~MedicamentoMarca() {}
 }

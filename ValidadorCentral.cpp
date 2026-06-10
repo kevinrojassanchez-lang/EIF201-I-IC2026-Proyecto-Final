@@ -13,7 +13,6 @@ namespace FarmaSystem {
             char caracter = texto[i];
 
             if (caracter < '0' || caracter > '9') {
-
                 return false;
             }
         }
@@ -65,7 +64,6 @@ namespace FarmaSystem {
 
         double resultado = 0.0;
         std::stringstream(texto) >> resultado;
-
         return resultado;
     }
 
@@ -74,6 +72,7 @@ namespace FarmaSystem {
         if (texto != "0" && texto != "1") {
             throw std::runtime_error("Bandera binaria invalida");
         }
+
         return (texto == "1");
     }
 

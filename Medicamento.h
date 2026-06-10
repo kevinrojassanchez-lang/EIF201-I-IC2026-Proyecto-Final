@@ -22,7 +22,18 @@ namespace FarmaSystem {
         int getStock() const;
         virtual bool getReceta() const;
 		int getIdProveedor() const;  // nuevo getter
+
+        bool setNombre(const std::string& nombre);
+        bool setPrecio(double precio);
+        void setReceta(bool receta);
         void setStock(int cantidad);
+        bool setIdProveedor(int idProveedor);
+
+        virtual bool setPrincipioActivo(const std::string& principio);
+        virtual bool setPaisOrigen(const std::string& pais);
+        virtual void setPromocion(bool promocion);
+        virtual bool setNivelControl(int nivel);
+        virtual bool setDosisMaxima(double dosis);
 		
         virtual std::string getCategoria() const = 0;
         virtual double calcularPrecioFinal(int cantidad) const = 0;

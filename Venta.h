@@ -15,8 +15,10 @@ namespace FarmaSystem {
         std::string fecha; // formato dd/mm/aaaa
 
     public:
-        Venta(int id, int idCliente, Medicamento* medicamentoVendido, int cant, double precioFinal, std::string fecha);
-        // Getters para la GUI
+        Venta(int id, int idCliente, Medicamento* medicamentoVendido, int cant, double precioFinal, 
+            std::string fecha);
+
+        // Getters
         int getId() const;
         int getIdCliente() const;
         std::string getNombreMedicamento() const;

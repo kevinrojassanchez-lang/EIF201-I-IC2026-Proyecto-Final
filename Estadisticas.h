@@ -12,7 +12,7 @@ namespace FarmaSystem {
 
     private:
 
-        // Auxiliares privados para manejo mediante arreglos paralelos
+        // Auxiliares privados para manejo de operaciones mediante arreglos paralelos
         static void acumularMedicamentos(ListaVentas& ventas, int* idsMedicamentos, int* unidadesVendidas,
             int maxCapacidad, int& usados);
 
@@ -28,7 +28,7 @@ namespace FarmaSystem {
         // Retorna el medicamento con el stock mss bajo (Lista Simple)
         static Medicamento* obtenerMenorStock(ListaMedicamentos& medicamentos);
 
-        // Retorna el medicamento más vendido cruzando datos (Lista Simple + Lista Circular)
+        // Retorna el medicamento mas vendido cruzando datos (Lista Simple + Lista Circular)
         static Medicamento* obtenerMasVendido(ListaMedicamentos& medicamentos, ListaVentas& ventas);
 
         // Retorna el cliente con mayor monto acumulado (Lista Doble + Lista Circular)

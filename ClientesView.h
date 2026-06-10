@@ -20,7 +20,7 @@ namespace FarmaSystem {
         QTableWidget* tabla;
         QLineEdit* textoBuscarCliente;
         QPushButton* botonEliminar;
-        QPushButton* botonFidelidad;
+        QPushButton* botonEditar;
 
         void construirUI();
         void llenarTablaUI();
@@ -36,7 +36,7 @@ namespace FarmaSystem {
     private slots:
         void eliminarClienteSeleccionado();
         void abrirDialogRegistrarCliente();
-        void toggleFidelidadCliente();
+        void abrirDialogEditarCliente();
         void filtrarClientes(const QString& texto);
         void actualizarEstadoBotones();
 

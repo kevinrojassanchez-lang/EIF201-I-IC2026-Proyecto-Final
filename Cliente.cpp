@@ -14,8 +14,25 @@ namespace FarmaSystem { // Namespace
     std::string Cliente::getCedula() const { return cedula; }
     bool Cliente::getTarjeta() const { return tarjetaFidelidad; }
 
-    // Setter
+    // Setters
     void Cliente::setTarjeta(bool estado) { this->tarjetaFidelidad = estado; }
+    bool Cliente::setNombre(const std::string& nNombre) {
+
+        if (nNombre == "") { return false; }
+
+        nombre = nNombre;
+
+        return true;
+    }
+
+    bool Cliente::setCedula(const std::string& nCedula) {
+
+        if (nCedula == "") { return false; }
+
+        cedula = nCedula;
+
+        return true;
+    }
 
     std::string Cliente::toString() const {
 
@@ -25,5 +42,4 @@ namespace FarmaSystem { // Namespace
     Cliente::~Cliente() {
         // No requiere delete manual para los strings
     }
-
 } // Fin FarmaSystem

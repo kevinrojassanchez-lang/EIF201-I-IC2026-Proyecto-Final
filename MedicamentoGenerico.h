@@ -11,7 +11,8 @@ namespace FarmaSystem {
 
     public:
 
-        MedicamentoGenerico(int id, std::string nombre, double precio, bool receta, int stock, std::string principio, int idProveedor);
+        MedicamentoGenerico(int id, std::string nombre, double precio, bool receta, int stock,
+            std::string principio, int idProveedor);
         std::string getCategoria() const override;
         double calcularPrecioFinal(int cantidad) const override;
         std::string getAdvertencia() const override;
@@ -19,8 +20,7 @@ namespace FarmaSystem {
         std::string getInfoExtra() const override;
 		std::string getInfoPrecio() const override;
 		std::string getPrincipioActivo() const override;
-
-
+		bool setPrincipioActivo(const std::string& principio) override;
         ~MedicamentoGenerico();
     };
 };

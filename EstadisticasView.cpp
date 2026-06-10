@@ -15,37 +15,25 @@ namespace FarmaSystem {
     void EstadisticasView::construirUI() {
 
         RecursosUI ui;
+        ui.aplicarEstiloVentana(this);
 
         QVBoxLayout* layoutPrincipal = new QVBoxLayout(this);
 
-        ui.aplicarEstiloVentana(this);
-
         QLabel* titulo = new QLabel("Panel de Estadisticas");
         titulo->setAlignment(Qt::AlignCenter);
-
         ui.aplicarTituloNeon(titulo);
-
         layoutPrincipal->addWidget(titulo);
 
-        // PANEL 
-
-        QFrame* panelInfo = new QFrame;
-
-        panelInfo->setStyleSheet(
-            "QFrame {"
-            "background-color: #1f1f1f;"
-            "border: 2px solid #39FF14;"
-            "border-radius: 10px;"
-            "padding: 10px;"
-            "}"
-        );
+		// PANEL DE INFORMACION PRINCIPAL
+        QFrame* panelInfo = new QFrame();
+        ui.aplicarEstiloPanelEstadisticas(panelInfo);
 
         QVBoxLayout* layoutInfo = new QVBoxLayout(panelInfo);
 
-        lblMenorStock = new QLabel;
-        lblMasVendido = new QLabel;
-        lblClienteVIP = new QLabel;
-        lblIngresos = new QLabel;
+        lblMenorStock = new QLabel();
+        lblMasVendido = new QLabel();
+        lblClienteVIP = new QLabel();
+        lblIngresos = new QLabel();
 
         ui.aplicarLabelInfo(lblMenorStock);
         ui.aplicarLabelInfo(lblMasVendido);
@@ -59,96 +47,57 @@ namespace FarmaSystem {
 
         layoutPrincipal->addWidget(panelInfo);
 
-        // TITULO GRAFICO
-
+		// TITULO DEL GRAFICO
         QLabel* tituloGrafico = new QLabel("Medicamentos por Categoria");
-
         tituloGrafico->setAlignment(Qt::AlignCenter);
-
         ui.aplicarLabelNeon(tituloGrafico, "#39FF14", 18);
-
         layoutPrincipal->addWidget(tituloGrafico);
 
-        QHBoxLayout* layoutGrafico = new QHBoxLayout;
+        QHBoxLayout* layoutGrafico = new QHBoxLayout();
 
-        // GENERICOS
-
-        QVBoxLayout* columnaGenericos = new QVBoxLayout;
-
-        barraGenericos = new QLabel;
-        barraGenericos->setFixedWidth(70);
-
-        barraGenericos->setStyleSheet(
-            "background-color: #39FF14;"
-            "border-radius: 8px;"
-        );
+        // COLUMNA GENERICOS (Verde)
+        QVBoxLayout* columnaGenericos = new QVBoxLayout();
+        barraGenericos = new QLabel();
+        ui.aplicarEstiloBarraGrafico(barraGenericos, "#39FF14");
 
         valorGenericos = new QLabel("0");
         valorGenericos->setAlignment(Qt::AlignCenter);
-
         QLabel* textoGenericos = new QLabel("Genericos");
         textoGenericos->setAlignment(Qt::AlignCenter);
-
         ui.aplicarLabelInfo(valorGenericos);
         ui.aplicarLabelInfo(textoGenericos);
 
-        columnaGenericos->addStretch();
-        columnaGenericos->addWidget(barraGenericos);
-        columnaGenericos->addWidget(valorGenericos);
-        columnaGenericos->addWidget(textoGenericos);
+        ui.configurarColumnaGrafico(columnaGenericos, barraGenericos, valorGenericos, textoGenericos);
 
-        // MARCA
-
-        QVBoxLayout* columnaMarca = new QVBoxLayout;
-
-        barraMarca = new QLabel;
-        barraMarca->setFixedWidth(70);
-
-        barraMarca->setStyleSheet(
-            "background-color: #FF3131;"
-            "border-radius: 8px;"
-        );
+        // COLUMNA MARCA (Rojo)
+        QVBoxLayout* columnaMarca = new QVBoxLayout();
+        barraMarca = new QLabel();
+        ui.aplicarEstiloBarraGrafico(barraMarca, "#FF3131");
 
         valorMarca = new QLabel("0");
         valorMarca->setAlignment(Qt::AlignCenter);
-
         QLabel* textoMarca = new QLabel("Marca");
         textoMarca->setAlignment(Qt::AlignCenter);
-
         ui.aplicarLabelInfo(valorMarca);
         ui.aplicarLabelInfo(textoMarca);
 
-        columnaMarca->addStretch();
-        columnaMarca->addWidget(barraMarca);
-        columnaMarca->addWidget(valorMarca);
-        columnaMarca->addWidget(textoMarca);
+        ui.configurarColumnaGrafico(columnaMarca, barraMarca, valorMarca, textoMarca);
 
-        // CONTROLADOS
-
-        QVBoxLayout* columnaControlados = new QVBoxLayout;
-
-        barraControlados = new QLabel;
-        barraControlados->setFixedWidth(70);
-
-        barraControlados->setStyleSheet(
-            "background-color: #00BFFF;"
-            "border-radius: 8px;"
-        );
+        // COLUMNA CONTROLADOS (Azul)
+        QVBoxLayout* columnaControlados = new QVBoxLayout();
+        barraControlados = new QLabel();
+        ui.aplicarEstiloBarraGrafico(barraControlados, "#00BFFF");
 
         valorControlados = new QLabel("0");
         valorControlados->setAlignment(Qt::AlignCenter);
-
         QLabel* textoControlados = new QLabel("Controlados");
         textoControlados->setAlignment(Qt::AlignCenter);
-
         ui.aplicarLabelInfo(valorControlados);
         ui.aplicarLabelInfo(textoControlados);
 
-        columnaControlados->addStretch();
-        columnaControlados->addWidget(barraControlados);
-        columnaControlados->addWidget(valorControlados);
-        columnaControlados->addWidget(textoControlados);
+        ui.configurarColumnaGrafico(columnaControlados, barraControlados, valorControlados, textoControlados);
 
+        // Integracion de Grafico
         layoutGrafico->addStretch();
         layoutGrafico->addLayout(columnaGenericos);
         layoutGrafico->addSpacing(30);
@@ -160,9 +109,7 @@ namespace FarmaSystem {
         layoutPrincipal->addLayout(layoutGrafico);
 
         // BOTONES
-
-        QHBoxLayout* layoutBotones = new QHBoxLayout;
-
+        QHBoxLayout* layoutBotones = new QHBoxLayout();
         botonActualizar = new QPushButton("Actualizar");
         botonVolver = new QPushButton("Volver");
 
@@ -176,73 +123,36 @@ namespace FarmaSystem {
         layoutPrincipal->addLayout(layoutBotones);
 
         // CONEXIONES
-
-        connect(botonActualizar,
-            &QPushButton::clicked,
-            this,
-            &EstadisticasView::actualizarDatos);
-
-        connect(botonVolver,
-            &QPushButton::clicked,
-            this,
-            &EstadisticasView::volverAlMenu);
+        connect(botonActualizar, &QPushButton::clicked, this, &EstadisticasView::actualizarDatos);
+        connect(botonVolver, &QPushButton::clicked, this, &EstadisticasView::volverAlMenu);
     }
 
     void EstadisticasView::actualizarDatos() {
-
         Medicamento* menorStock = sistema->obtenerMenorStock();
-
         Medicamento* masVendido = sistema->obtenerMasVendido();
-
-        Cliente* vip =
-            sistema->obtenerClienteVIP();
-
-        double ingresos =
-            sistema->obtenerIngresosTotales();
+        Cliente* vip = sistema->obtenerClienteVIP();
+        double ingresos = sistema->obtenerIngresosTotales();
 
         if (menorStock != nullptr) {
-
-            lblMenorStock->setText(
-                "Menor stock: " +
-                QString::fromStdString(menorStock->getNombre()) +
-                " (" +
-                QString::number(menorStock->getStock()) +
-                " unidades)"
-            );
+            lblMenorStock->setText("Menor stock: " + QString::fromStdString(menorStock->getNombre()) +
+                " (" + QString::number(menorStock->getStock()) + " unidades)");
         }
         else {
-
-            lblMenorStock->setText(
-                "Menor stock: Sin datos"
-            );
+            lblMenorStock->setText("Menor stock: Sin datos");
         }
 
         if (masVendido != nullptr) {
-
-            lblMasVendido->setText(
-                "Mas vendido: " +
-                QString::fromStdString(masVendido->getNombre())
-            );
+            lblMasVendido->setText("Mas vendido: " + QString::fromStdString(masVendido->getNombre()));
         }
         else {
-
-            lblMasVendido->setText(
-                "Mas vendido: Sin datos"
-            );
+            lblMasVendido->setText("Mas vendido: Sin datos");
         }
 
         if (vip != nullptr) {
-
-            lblClienteVIP->setText(
-                "Cliente VIP: " +
-                QString::fromStdString(vip->getNombre())
-            );
+            lblClienteVIP->setText("Cliente VIP: " + QString::fromStdString(vip->getNombre()));
         }
         else {
-
-            lblClienteVIP->setText(
-                "Cliente VIP: Sin datos"
-            );
+            lblClienteVIP->setText("Cliente VIP: Sin datos");
         }
 
         lblIngresos->setText("Ingresos totales: CRC " + QString::number(ingresos, 'f', 2));
@@ -251,30 +161,23 @@ namespace FarmaSystem {
     }
 
     void EstadisticasView::actualizarGraficoCategorias() {
-
-        int genericos   = sistema->contarPorCategoria("Generico");
-        int marca       = sistema->contarPorCategoria("Marca");
+        int genericos = sistema->contarPorCategoria("Generico");
+        int marca = sistema->contarPorCategoria("Marca");
         int controlados = sistema->contarPorCategoria("Controlado");
 
         valorGenericos->setText(QString::number(genericos));
         valorMarca->setText(QString::number(marca));
         valorControlados->setText(QString::number(controlados));
 
+        // Multiplicador de escala de barras modificado de forma segura
         int alturaGenericos = genericos * 25;
         int alturaMarca = marca * 25;
         int alturaControlados = controlados * 25;
 
-        if (alturaGenericos < 20) {
-            alturaGenericos = 20;
-        }
-
-        if (alturaMarca < 20) {
-            alturaMarca = 20;
-        }
-
-        if (alturaControlados < 20) {
-            alturaControlados = 20;
-        }
+        // Establecer un umbral minimo de renderizado visible
+        if (alturaGenericos < 20)   alturaGenericos = 20;
+        if (alturaMarca < 20)       alturaMarca = 20;
+        if (alturaControlados < 20) alturaControlados = 20;
 
         barraGenericos->setFixedHeight(alturaGenericos);
         barraMarca->setFixedHeight(alturaMarca);

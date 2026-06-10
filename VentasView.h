@@ -10,6 +10,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QTimer>
+#include <QEvent>
 
 #include "SistemaFarmacia.h"
 
@@ -42,10 +43,13 @@ namespace FarmaSystem {
         void manejarCambioTextoCantidad(const QString& texto);
         void resetEstadoReceta();
         void actualizarFiltroVentas();
-
+    protected:
+		// funcion nativa de Qt que nos permite detectar cuando el usuario hace click
+        bool eventFilter(QObject* obj, QEvent* event) override;
     public:
         VentasView(SistemaFarmacia* sistema, QWidget* parent = nullptr);
         void actualizarVista();
+		void limpiarFormularioVenta();
 
     signals:
         void datosActualizados();

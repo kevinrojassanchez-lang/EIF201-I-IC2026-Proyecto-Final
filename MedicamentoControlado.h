@@ -10,7 +10,8 @@ namespace FarmaSystem {
         double dosisPorUnidad;
 
     public:
-        MedicamentoControlado(int id, std::string nombre, double precio, int stock, int nivel, double dosis, int idProveedor);
+        MedicamentoControlado(int id, std::string nombre, double precio, bool receta, int stock, int nivel, double dosis,
+            int idProveedor);
         std::string getCategoria() const override;
         bool getReceta() const override;
         std::string getAdvertencia() const override;
@@ -20,6 +21,8 @@ namespace FarmaSystem {
 		std::string getInfoPrecio() const override;
         int getNivelControl() const override;
         double getDosisMaxima() const override;
+		bool setNivelControl(int nivel) override;
+		bool setDosisMaxima(double dosis) override;
 
         // Sobreescribimos toString para que incluya los datos de control
         std::string toString() const override;

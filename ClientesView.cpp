@@ -9,7 +9,7 @@
 #include "RecursosUI.h"
 
 
-namespace FarmaSystem {
+namespace FarmaSystem { // Implementacion de ClientesView
     
     ClientesView::ClientesView(SistemaFarmacia* s, QWidget* parent) : QWidget(parent), sistema(s) {
 
@@ -62,27 +62,28 @@ namespace FarmaSystem {
         ui.aplicarEstiloTabla(tabla);
 
         botonEliminar = new QPushButton("Eliminar");
-        botonFidelidad = new QPushButton("Fidelidad");
+        botonEditar = new QPushButton("Editar");
+
         QPushButton* botonRegistrar = new QPushButton("Registrar");
         QPushButton* botonVolver = new QPushButton("Volver");
 
         botonEliminar->setEnabled(false);
-        botonFidelidad->setEnabled(false);
+        botonEditar->setEnabled(false);
 
         botonRegistrar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+		botonEditar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         botonEliminar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-        botonFidelidad->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
         botonVolver->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
 
         layoutBotones->addWidget(botonRegistrar, 1);
+        layoutBotones->addWidget(botonEditar, 1);
         layoutBotones->addWidget(botonEliminar, 1);
-        layoutBotones->addWidget(botonFidelidad, 1);
         layoutBotones->addWidget(botonVolver, 1);
         layoutBotones->addStretch();
 
         ui.aplicarEstiloBoton(botonRegistrar);
+        ui.aplicarEstiloBoton(botonEditar);
         ui.aplicarEstiloBoton(botonEliminar);
-        ui.aplicarEstiloBoton(botonFidelidad);
         ui.aplicarEstiloBoton(botonVolver);
 
         // Orden en pantalla
@@ -91,8 +92,8 @@ namespace FarmaSystem {
         layout->addLayout(layoutBotones);
 
         connect(botonRegistrar, &QPushButton::clicked, this, &ClientesView::abrirDialogRegistrarCliente);
+        connect(botonEditar, &QPushButton::clicked, this, &ClientesView::abrirDialogEditarCliente);
         connect(botonEliminar, &QPushButton::clicked, this, &ClientesView::eliminarClienteSeleccionado);
-        connect(botonFidelidad, &QPushButton::clicked, this, &ClientesView::toggleFidelidadCliente);
         connect(botonVolver, &QPushButton::clicked, this, &ClientesView::volverAlMenu);
         connect(textoBuscarCliente, &QLineEdit::textChanged, this, &ClientesView::filtrarClientes);
         connect(tabla, &QTableWidget::itemSelectionChanged, this, [=]() { textoBuscarCliente->deselect(); });
@@ -140,10 +141,8 @@ namespace FarmaSystem {
                 QString cedula = QString::fromStdString(cliente->getCedula());
 
                 if (cedula.contains(texto, Qt::CaseInsensitive)) {
-
                     agregarDatos(cliente);
                 }
-            
             }
         }
     }
@@ -151,21 +150,33 @@ namespace FarmaSystem {
     void ClientesView::abrirDialogRegistrarCliente() {
 
         QDialog dialog(this);
-        dialog.setWindowTitle("Registrar");
+        dialog.setWindowTitle("Registrar Cliente");
+
+        // Instanciar e inicializar los estilos del dialogo
+        RecursosUI ui;
+        ui.aplicarEstiloFormularioDialogo(&dialog);
+
         QVBoxLayout* layout = new QVBoxLayout(&dialog);
 
-        QLineEdit* editNombre = new QLineEdit();
-        editNombre->setPlaceholderText("Nombre Completo");
+        // Crear las etiquetas con estilo limpio de informacion
+        QLabel* lblNombre = new QLabel("Nombre:");
+        QLabel* lblCedula = new QLabel("Cedula:");
+        ui.aplicarLabelInfo(lblNombre);
+        ui.aplicarLabelInfo(lblCedula);
 
-        QLineEdit* editCedula = new QLineEdit();
-        editCedula->setPlaceholderText("Cedula de Identidad");
-
-        layout->addWidget(new QLabel("Nombre:"));
-        layout->addWidget(editNombre);
-        layout->addWidget(new QLabel("Cedula:"));
-        layout->addWidget(editCedula);
+        // Campos de Texto optimizados usando los metodos estaticos de RecursosUI
+        QLineEdit* editNombre = RecursosUI::crearCampoTexto("Nombre Completo");
+        QLineEdit* editCedula = RecursosUI::crearCampoTexto("Cedula de Identidad");
 
         QPushButton* botonGuardar = new QPushButton("Guardar");
+        ui.aplicarEstiloBoton(botonGuardar);
+
+        // Organizar el layout de forma estructurada
+        layout->addWidget(lblNombre);
+        layout->addWidget(editNombre);
+        layout->addWidget(lblCedula);
+        layout->addWidget(editCedula);
+        layout->addSpacing(10);                       // Un pequeno espacio de respiro antes del boton
         layout->addWidget(botonGuardar);
 
         connect(botonGuardar, &QPushButton::clicked, [&]() {
@@ -173,6 +184,7 @@ namespace FarmaSystem {
             std::string nombre = editNombre->text().trimmed().toStdString();
             std::string cedula = editCedula->text().trimmed().toStdString();
 
+            // Logica de la controladora
             int resultado = sistema->registrarCliente(nombre, cedula);
 
             switch (resultado) {
@@ -184,21 +196,12 @@ namespace FarmaSystem {
                 dialog.accept();
                 break;
 
-            case 1:
-                QMessageBox::warning(&dialog, "FarmaSystem", "Campos vacios.");
-                break;
-
-            case 2:
-                QMessageBox::warning(&dialog, "FarmaSystem", "Cedula ya registrada.");
-                break;
-
-            default:
-                QMessageBox::critical(&dialog, "FarmaSystem", "Error interno.");
-                break;
+             case 1: QMessageBox::warning(&dialog, "FarmaSystem", "Campos vacios."); break;
+             case 2: QMessageBox::warning(&dialog, "FarmaSystem", "Cedula ya registrada."); break;
+            default: QMessageBox::critical(&dialog, "FarmaSystem", "Error interno."); break;
             }
         });
-
-        dialog.exec();
+       dialog.exec();
     }
 
     void ClientesView::eliminarClienteSeleccionado() {
@@ -208,7 +211,7 @@ namespace FarmaSystem {
         int filaActual = tabla->currentRow();
         int id = tabla->item(filaActual, 0)->text().toInt();
 
-        if (QMessageBox::question(this, "FarmaSystem", "Eliminar cliente?") == QMessageBox::Yes) {
+        if (QMessageBox::question(this, "FarmaSystem", "Eliminar cliente") == QMessageBox::Yes) {
 
             if (sistema->eliminarCliente(id)) {
 
@@ -223,26 +226,83 @@ namespace FarmaSystem {
         }
     }
 
-    void ClientesView::toggleFidelidadCliente() {
-
-        if (tabla->selectedItems().isEmpty()) { return; }
-
-        int filaActual = tabla->currentRow();
-
-        int id = tabla->item(filaActual, 0)->text().toInt();
-
-        sistema->toggleFidelidad(id);
-
-        llenarTablaUI();
-
-        emit datosActualizados();
-    }
-
     bool ClientesView::eventFilter(QObject* obj, QEvent* event) {
 
         if (obj == textoBuscarCliente && event->type() == QEvent::FocusIn) { tabla->clearSelection(); }
 
         return QWidget::eventFilter(obj, event);
+    }
+
+    void ClientesView::abrirDialogEditarCliente() {
+
+        if (tabla->selectedItems().isEmpty()) { return; }
+
+        int fila = tabla->currentRow();
+        int id = tabla->item(fila, 0)->text().toInt();
+
+        Cliente* cliente = sistema->buscarClientePorID(id);
+        if (cliente == nullptr) { return; }
+
+        QDialog dialog(this);
+        dialog.setWindowTitle("Editar Cliente");
+
+        // Instanciar e inicializar los estilos de la ventana emergente
+        RecursosUI ui;
+        ui.aplicarEstiloFormularioDialogo(&dialog);
+
+        QVBoxLayout* layout = new QVBoxLayout(&dialog);
+
+        // Crear componentes estilizados usando los metodos estaticos de RecursosUI 
+        QLineEdit* nombre = RecursosUI::crearCampoTexto("");
+        QLineEdit* cedula = RecursosUI::crearCampoTexto("");
+        QCheckBox* fidelidad = RecursosUI::crearCheck("Tarjeta de fidelidad activa");
+
+        QPushButton* guardar = new QPushButton("Guardar");
+        ui.aplicarEstiloBoton(guardar);
+
+        // Cargar los datos actuales del modelo en los componentes
+        nombre->setText(QString::fromStdString(cliente->getNombre()));
+        cedula->setText(QString::fromStdString(cliente->getCedula()));
+        fidelidad->setChecked(cliente->getTarjeta());
+
+        // Crear etiquetas con estilo limpio de información
+        QLabel* lblNombre = new QLabel("Nombre:");
+        QLabel* lblCedula = new QLabel("Cedula:");
+        ui.aplicarLabelInfo(lblNombre);
+        ui.aplicarLabelInfo(lblCedula);
+
+        // Organizar el layout de manera ordenada
+        layout->addWidget(lblNombre);
+        layout->addWidget(nombre);
+        layout->addWidget(lblCedula);
+        layout->addWidget(cedula);
+        layout->addWidget(fidelidad);
+        layout->addSpacing(10); // Un espacio de separacion antes del boton
+        layout->addWidget(guardar);
+
+        connect(guardar, &QPushButton::clicked, [&]() {
+
+            int resultado = sistema->editarCliente(id, nombre->text().trimmed().toStdString(),
+                cedula->text().trimmed().toStdString(), fidelidad->isChecked());
+
+            switch (resultado) {
+
+            case 0:
+                sistema->guardarDatos(); // la persistencia se confirma tras la validacion de la controladora
+                QMessageBox::information(this, "FarmaSystem", "Cliente Actualizado.");
+                llenarTablaUI();
+                emit datosActualizados();
+                dialog.accept();
+                break;
+
+            case 1:  QMessageBox::warning(this, "FarmaSystem", "Cliente no encontrado.");break;
+            case 2:  QMessageBox::warning(this, "FarmaSystem", "Nombre invalido."); break;
+            case 3:  QMessageBox::warning(this, "FarmaSystem", "Cedula invalida."); break;
+            default: QMessageBox::critical(this, "FarmaSystem", "Error interno."); break;
+            }
+        });
+
+        dialog.exec();
     }
 
     void ClientesView::agregarDatos(Cliente* cliente) {
@@ -259,7 +319,7 @@ namespace FarmaSystem {
         // Insertar fila
         tabla->insertRow(fila);
 
-		// Carga de dato a cada columna de la fila
+		// Cargar dato a cada columna de la fila
         tabla->setItem(fila, 0, new QTableWidgetItem(id));
         tabla->setItem(fila, 1, new QTableWidgetItem(nombre));
         tabla->setItem(fila, 2, new QTableWidgetItem(cedula));
@@ -280,7 +340,6 @@ namespace FarmaSystem {
         this->setFocus();
 
         RecursosUI ui;
-
         ui.cambiarColorGrid(tabla, false);
 
         actualizarEstadoBotones();
@@ -291,11 +350,9 @@ namespace FarmaSystem {
         bool tieneSeleccion = !tabla->selectedItems().isEmpty();
 
         botonEliminar->setEnabled(tieneSeleccion);
-
-        botonFidelidad->setEnabled(tieneSeleccion);
+        botonEditar->setEnabled(tieneSeleccion);
 
         RecursosUI ui;
-
         ui.cambiarColorGrid(tabla, tieneSeleccion);
     }
-}
+} // namespace FarmaSystem

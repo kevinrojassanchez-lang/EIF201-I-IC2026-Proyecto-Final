@@ -2,12 +2,18 @@
 
 namespace FarmaSystem {
 
+	// Constructor para inicializar la lista vacia
     ListaMedicamentos::ListaMedicamentos()
       : cabeza(nullptr), cola(nullptr), tamano(0) {
     }
 
-    ListaMedicamentos::~ListaMedicamentos() { limpiar(); }
+	// Destructor para limpiar la lista y liberar memoria
+    ListaMedicamentos::~ListaMedicamentos() {
+       
+        limpiar();
+    }
 
+	// Metodo para agregar un medicamento al final de la lista
     void ListaMedicamentos::agregar(Medicamento* med) {
 
         NodoMedicamento* nuevo = new NodoMedicamento(med);
@@ -27,8 +33,10 @@ namespace FarmaSystem {
         tamano++;
     }
 
+	// Metodo para obtener la cabeza de la lista
     NodoMedicamento* ListaMedicamentos::getCabeza() const {  return cabeza; }
 
+	// Metodo para obtener un medicamento por su posicion en la lista
     Medicamento* ListaMedicamentos::obtener(int indice) {
 
         if (indice < 0 || indice >= tamano) {
@@ -37,13 +45,18 @@ namespace FarmaSystem {
 
         NodoMedicamento* actual = cabeza;
 
-        for (int i = 0; i < indice; i++) {
+        int posicion = 0;
+
+        while (posicion < indice) {
+
             actual = actual->siguiente;
+            posicion++;
         }
 
         return actual->dato;
     }
 
+	// Metodo para buscar un medicamento por su ID
     Medicamento* ListaMedicamentos::buscarPorId(int id) {
 
         NodoMedicamento* actual = cabeza;
@@ -62,6 +75,7 @@ namespace FarmaSystem {
         return nullptr;
     }
 
+	// Metodo para buscar un medicamento por su nombre (busqueda parcial)
     Medicamento* ListaMedicamentos::buscarPorNombre(std::string texto) {
 
         NodoMedicamento* actual = cabeza;
@@ -72,8 +86,7 @@ namespace FarmaSystem {
 
                 std::string nombre = actual->dato->getNombre();
 
-                // Busqueda parcial
-                if (nombre.find(texto) != std::string::npos) {
+                if (nombre.find(texto) != std::string::npos) { // Busqueda parcial
 
                     return actual->dato;
                 }
@@ -85,6 +98,7 @@ namespace FarmaSystem {
         return nullptr;
     }
 
+	// Metodo para eliminar un medicamento por su ID
     bool ListaMedicamentos::eliminar(int id) {
 
         if (cabeza == nullptr) {
@@ -99,23 +113,19 @@ namespace FarmaSystem {
             if (actual->dato != nullptr &&
                 actual->dato->getID() == id) {
 
-                // Caso: es el primero
-                if (anterior == nullptr) {
+                if (anterior == nullptr) { // si es el primero
 
                     cabeza = actual->siguiente;
 
-                    // Si era el unico nodo
-                    if (cabeza == nullptr) {
+                    if (cabeza == nullptr) { // si era el unico nodo
                         cola = nullptr;
                     }
-
                 }
                 else {
 
                     anterior->siguiente = actual->siguiente;
 
-                    // Si era el último nodo
-                    if (actual == cola) {
+                    if (actual == cola) { // si era el ultimo nodo
                         cola = anterior;
                     }
                 }
@@ -135,6 +145,7 @@ namespace FarmaSystem {
         return false;
     }
 
+	// Metodo para verificar si existe un medicamento asociado a un proveedor
     bool ListaMedicamentos::tieneProveedor(int idProveedor) {
 
         NodoMedicamento* actual = cabeza;
@@ -153,8 +164,25 @@ namespace FarmaSystem {
         return false;
     }
 
+	// Metodo para obtener la cantidad de medicamentos en la lista
     int ListaMedicamentos::cantidad() const { return tamano; }
 
+	// Metodo para mostrar todos los medicamentos en el frontend
+    void ListaMedicamentos::mostrarTodos() {
+
+        NodoMedicamento* actual = cabeza;
+
+        while (actual != nullptr) {
+
+            if (actual->dato != nullptr) {
+                actual->dato->toString();
+            }
+
+            actual = actual->siguiente;
+        }
+    }
+
+	// Metodo para guardar todos los medicamentos en un archivo de texto
     void ListaMedicamentos::guardarEnArchivo(std::ofstream& archivo) {
 
         NodoMedicamento* actual = cabeza;
@@ -172,20 +200,7 @@ namespace FarmaSystem {
         }
     }
 
-    void ListaMedicamentos::mostrarTodos() {
-
-        NodoMedicamento* actual = cabeza;
-
-        while (actual != nullptr) {
-
-            if (actual->dato != nullptr) {
-                actual->dato->toString();
-            }
-
-            actual = actual->siguiente;
-        }
-    }
-
+	// Metodo para limpiar la lista y liberar memoria
     void ListaMedicamentos::limpiar() {
 
         NodoMedicamento* actual = cabeza;
@@ -205,4 +220,4 @@ namespace FarmaSystem {
         tamano = 0;
     }
 
-}
+}// Fin namespace FarmaSystem

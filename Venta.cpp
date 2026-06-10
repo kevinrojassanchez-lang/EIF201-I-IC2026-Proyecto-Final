@@ -10,7 +10,6 @@ namespace FarmaSystem {
 
         this->precioUnitario = medicamentoVendido->getPrecio();
         this->precioFinal = precioFinal;
-
     }
 
     int Venta::getId() const { return id; }

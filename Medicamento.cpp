@@ -17,8 +17,33 @@ namespace FarmaSystem {
     bool Medicamento::getReceta() const { return requiereReceta; }
     int Medicamento::getIdProveedor() const { return idProveedor; }
 
-    // Setter
-    void Medicamento::setStock(int cantidad) { this->stock = cantidad; }
+    // Setters
+    void Medicamento::setStock(int cantidad) { if (cantidad >= 0) { this->stock = cantidad; } }
+    bool Medicamento::setNombre(const std::string& nNombre) {
+
+        if (nNombre == "") { return false; }
+        nombre = nNombre;
+        return true;
+    }
+    bool Medicamento::setPrecio(double nPrecio) {
+
+        if (nPrecio <= 0) { return false; }
+        precio = nPrecio;
+        return true;
+	}
+    void Medicamento::setReceta(bool receta) { requiereReceta = receta; }
+    bool Medicamento::setIdProveedor(int nIdProveedor) {
+
+        if (nIdProveedor < 0) { return false; }
+        idProveedor = nIdProveedor;
+        return true;
+	}
+
+    bool Medicamento::setPrincipioActivo(const std::string&) { return false;}
+    bool Medicamento::setPaisOrigen(const std::string&) { return false; }
+    void Medicamento::setPromocion(bool) {} // No hace nada, solo lo implementan los medicamentos de marca 
+    bool Medicamento::setNivelControl(int) { return false; }
+    bool Medicamento::setDosisMaxima(double) { return false; }
 
     // Getters virtuales 
     std::string Medicamento::getPrincipioActivo() const { return ""; }

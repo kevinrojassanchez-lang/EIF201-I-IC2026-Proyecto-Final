@@ -20,16 +20,13 @@ namespace FarmaSystem {
 
         NodoVenta* getCabeza() const;
 
-        // Requerimiento: agregar ventas
         void agregar(Venta* v);
         int cantidad() const;
         Venta* obtener(int indice);
-        void guardarEnArchivo(std::ofstream& archivo);
 		bool existeVentaDeMedicamento(int idMedicamento);
 		bool existeVentaDeCliente(int idCliente);
-        // Requerimiento: recorrer historial continuo
         void imprimirHistorial() const;
-
+        void guardarEnArchivo(std::ofstream& archivo);
         void limpiar();
     };
 

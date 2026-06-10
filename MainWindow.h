@@ -6,16 +6,15 @@
 #include <QStatusBar>
 #include <QPushButton>
 #include <QLabel>
+#include <QTextEdit>
+#include <QTimer>
 
-#include "ArchivoCarga.h"
-#include "ArchivoGuardado.h"
 #include "ClientesView.h"
 #include "InventarioView.h"
 #include "CategoriasView.h"
 #include "VentasView.h"
 #include "ProveedoresView.h"
 #include "EstadisticasView.h"
-
 #include "SistemaFarmacia.h"
 
 namespace FarmaSystem {
@@ -23,45 +22,51 @@ namespace FarmaSystem {
     class MainWindow : public QMainWindow {
         Q_OBJECT
 
-     private:
-        SistemaFarmacia* sistema;
-
-        // Atributos de persistencia
-        ArchivoCarga cargador;
-        ArchivoGuardado guardador;
-
-        // Vistas
-        QStackedWidget* vistas;
-        InventarioView* vistaInventario;
-        ClientesView* vistaClientes;
-        ProveedoresView* vistaProveedores;
-        CategoriasView* vistaCategorias;
-        VentasView* vistaVentas;
-        EstadisticasView* vistaEstadisticas; // nuevo
-
-        // Metodos de creacion y navegacion
-        QWidget* crearMenuPrincipal();
+    private slots:
+        // SLOTS ASOCIADAS A EVENTOS Y NAVEGACION NATIVA DE QT
+        void actualizarFotogramaFondo();
         void mostrarVistaInventario();
         void mostrarVistaClientes();
         void mostrarVistaVentas();
         void mostrarVistaCategorias();
         void mostrarVistaProveedores();
         void mostrarVistaEstadisticas();
-
-        // UI General
-        void actualizarBarraEstado();
         void mostrarVistaMenuPrincipal();
+        void actualizarBarraEstado();
+
+    private:
+        // VARIABLES Y METODOS INTERNOS DE CONTROL
+        SistemaFarmacia* sistema;
+        QTextEdit* consolaDebug;
+        QLabel* labelFondo;
+        QTimer* timerAnimacion;
+
+        // El contador numerico del fotograma actual Mantiene el consumo de RAM en cero
+        int fotogramaActual;
+
+        void imprimirLogsIniciales();
+        void logConsola(const QString& mensaje, const QString& color = "#00FF00");
+        QWidget* crearMenuPrincipal();
+
+        // CONTENEDORES DE INTERFAZ Y VISTAS DE LAS PANTALLAS
+        QStackedWidget* vistas;
+        InventarioView* vistaInventario;
+        ClientesView* vistaClientes;
+        ProveedoresView* vistaProveedores;
+        CategoriasView* vistaCategorias;
+        VentasView* vistaVentas;
+        EstadisticasView* vistaEstadisticas;
 
     protected:
-        // Sobrescribimos el evento de cierre de Qt para atrapar la X que cierra la ventana
+        // EVENTOS NATIVOS SOBREESCRITOS DE LA VENTANA
         void closeEvent(QCloseEvent* event) override;
+        void resizeEvent(QResizeEvent* event) override;
 
-     public:
+    public:
         MainWindow(SistemaFarmacia* sistema, QWidget* parent = nullptr);
         ~MainWindow();
-
-    
     };
-}
 
-#endif
+} // namespace FarmaSystem
+
+#endif // MAINWINDOW_H
