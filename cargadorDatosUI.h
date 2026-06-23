@@ -17,8 +17,6 @@ namespace FarmaSystem {
                 const QList<int>& ids,
                 const QString& textoInicial = "");
 
-            // Calcula la ruta en el disco y dibuja el fotograma al instante
-            static void plasmarFotogramaFondo(QLabel* labelFondo, int fotogramaActual, int totalImagenes = 240);
         };
 
     } // namespace EIF201

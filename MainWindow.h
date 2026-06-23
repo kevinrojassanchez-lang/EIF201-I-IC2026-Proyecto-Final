@@ -8,6 +8,7 @@
 #include <QLabel>
 #include <QTextEdit>
 #include <QTimer>
+#include <QMovie>
 
 #include "ClientesView.h"
 #include "InventarioView.h"
@@ -40,6 +41,7 @@ namespace FarmaSystem {
         QTextEdit* consolaDebug;
         QLabel* labelFondo;
         QTimer* timerAnimacion;
+        QMovie* animacionFondo;
 
         // El contador numerico del fotograma actual Mantiene el consumo de RAM en cero
         int fotogramaActual;

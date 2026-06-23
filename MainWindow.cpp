@@ -6,8 +6,7 @@
 #include <QTime>       
 #include <QStatusBar>  
 #include <QTimer>      
-#include <QDir>        // Necesario para las rutas locales relativas de los fotogramas
-#include "CargadorDatosUI.h" // Para la conexion explicita de la carga asincrona del fondo animado
+#include <QDir>        
 
 namespace FarmaSystem {
 
@@ -73,13 +72,9 @@ namespace FarmaSystem {
         labelFondo = new QLabel(widget);
         labelFondo->lower();
 
-        // Inicializar el contador de fotogramas en cero
-        fotogramaActual = 0;
-
-        // CONFIGURAR EL TEMPORIZADOR DE ANIMACION NATIVO 
-        timerAnimacion = new QTimer(widget);
-        connect(timerAnimacion, &QTimer::timeout, this, &MainWindow::actualizarFotogramaFondo);
-        timerAnimacion->start(33);
+        animacionFondo = new QMovie("datos/fondo_sistema.gif", QByteArray(), this);
+        labelFondo->setMovie(animacionFondo);
+        animacionFondo->start();
 
         widget->setAttribute(Qt::WA_TranslucentBackground, false);
 
@@ -105,7 +100,6 @@ namespace FarmaSystem {
 
         ui.aplicarEstiloBoton(botonCargar);
         ui.aplicarEstiloBoton(botonGuardar);
-        // =========================================================================
 
         int anchoBotonesMenu = 150;
         botonInventario->setFixedWidth(anchoBotonesMenu);
@@ -166,9 +160,6 @@ namespace FarmaSystem {
         filaInferiorLayout->addLayout(columnaTerminalLayout, 0);
         filaInferiorLayout->addStretch();
 
-        // =========================================================================
-        // ACOMODO VERTICAL: Cargar -> Guardar -> Salir en la esquina derecha
-        // =========================================================================
         QVBoxLayout* columnaSistemaDerecha = new QVBoxLayout();
         columnaSistemaDerecha->setSpacing(10);
         columnaSistemaDerecha->addWidget(botonCargar);
@@ -176,7 +167,6 @@ namespace FarmaSystem {
         columnaSistemaDerecha->addWidget(botonSalir);
 
         filaInferiorLayout->addLayout(columnaSistemaDerecha);
-        // =========================================================================
 
         layoutPrincipal->addLayout(filaInferiorLayout);
 
@@ -187,15 +177,15 @@ namespace FarmaSystem {
         connect(botonVentas, &QPushButton::clicked, this, &MainWindow::mostrarVistaVentas);
         connect(botonEstadisticas, &QPushButton::clicked, this, &MainWindow::mostrarVistaEstadisticas);
         connect(botonSalir, &QPushButton::clicked, qApp, &QApplication::quit);
+
         connect(botonGuardar, &QPushButton::clicked, this, [&]() {
+
             sistema->guardarDatos();
             logConsola("Persistencia confirmada. Datos guardados exitosamente.", "#00FF00");
         });
-
         connect(botonCargar, &QPushButton::clicked, this, [&]() {
-            sistema->cargarDatos();
 
-            // Limpiamos la consola para no amontonar texto y refrescamos los contadores reales
+            sistema->cargarDatos();
             consolaDebug->clear();
             imprimirLogsIniciales();
         });
@@ -206,90 +196,96 @@ namespace FarmaSystem {
     }
 
     void MainWindow::actualizarFotogramaFondo() {
-        if (labelFondo == nullptr) return;
+        if (labelFondo == nullptr || animacionFondo == nullptr) return;
 
         // Fijo a la izquierda con un ancho personalizado de 400px
         labelFondo->setGeometry(100, 100, 400, 400);
 
-        EIF201::CargadorDatosUI::plasmarFotogramaFondo(labelFondo, fotogramaActual, 240);
-        fotogramaActual++;
+        // ajuste de la escala de reproduccion del GIF al tamano del QLabel
+        animacionFondo->setScaledSize(QSize(400, 400));
     }
 
     void MainWindow::logConsola(const QString& mensaje, const QString& color) {
         consolaDebug->append(QString("<span style='color: %1;'>[%2] %3</span>").arg(color)
             .arg(QTime::currentTime().toString("hh:mm:ss")).arg(mensaje));
     }
-
     void MainWindow::imprimirLogsIniciales() {
         logConsola("Iniciando FarmaSystem ...", "#00FFFF");
+
         logConsola("Analizando consistencia de archivos...", "#888888");
 
-        logConsola(QString("Proveedores cargados: %1 [Omitidos: %2]")
-            .arg(sistema->getCantProveedoresAceptados())
+        logConsola(QString("Proveedores cargados: %1 [Omitidos: %2]") .arg(sistema->getCantProveedoresAceptados())
             .arg(sistema->getCantProveedoresDescartados()), "#00FF00");
 
-        logConsola(QString("Medicamentos cargados: %1 [Omitidos: %2]")
-            .arg(sistema->getCantMedicamentosAceptados())
+        logConsola(QString("Medicamentos cargados: %1 [Omitidos: %2]").arg(sistema->getCantMedicamentosAceptados())
             .arg(sistema->getCantMedicamentosDescartados()), "#00FF00");
 
-        logConsola(QString("Clientes cargados: %1 [Omitidos: %2]")
-            .arg(sistema->getCantClientesAceptados())
+        logConsola(QString("Clientes cargados: %1 [Omitidos: %2]").arg(sistema->getCantClientesAceptados())
             .arg(sistema->getCantClientesDescartados()), "#00FF00");
 
-        logConsola(QString("Ventas cargadas: %1 [Omitidas: %2]")
-            .arg(sistema->getCantVentasAceptadas())
+        logConsola(QString("Ventas cargadas: %1 [Omitidas: %2]").arg(sistema->getCantVentasAceptadas())
             .arg(sistema->getCantVentasDescartadas()), "#00FF00");
 
         logConsola("Sistema Farmacia listo.", "#00FFFF");
     }
 
     void MainWindow::mostrarVistaVentas() {
-        // Pausar el temporizador del menu al salir de el para liberar memoria RAM
-        if (timerAnimacion) timerAnimacion->stop();
+
+        if (animacionFondo) animacionFondo->stop();
 
         vistaVentas->actualizarVista();
         vistas->setCurrentWidget(vistaVentas);
     }
 
     void MainWindow::mostrarVistaCategorias() {
-        if (timerAnimacion) timerAnimacion->stop();
+
+        if (animacionFondo) animacionFondo->stop();
 
         vistaCategorias->actualizarVista();
         vistas->setCurrentWidget(vistaCategorias);
     }
 
     void MainWindow::mostrarVistaInventario() {
-        if (timerAnimacion) timerAnimacion->stop();
+
+        if (animacionFondo) animacionFondo->stop();
+
         vistas->setCurrentWidget(vistaInventario);
     }
 
     void MainWindow::mostrarVistaClientes() {
-        if (timerAnimacion) timerAnimacion->stop();
+
+        if (animacionFondo) animacionFondo->stop();
+
         vistas->setCurrentWidget(vistaClientes);
     }
 
     void MainWindow::mostrarVistaProveedores() {
-        if (timerAnimacion) timerAnimacion->stop();
+
+        if (animacionFondo) animacionFondo->stop();
+
         vistas->setCurrentWidget(vistaProveedores);
     }
 
     void MainWindow::mostrarVistaEstadisticas() {
-        if (timerAnimacion) timerAnimacion->stop();
+        if (animacionFondo) animacionFondo->stop();
+
         vistas->setCurrentWidget(vistaEstadisticas);
     }
 
     void MainWindow::mostrarVistaMenuPrincipal() {
+
         actualizarBarraEstado();
         vistas->setCurrentIndex(0);
 
-        // Reencender el temporizador de forma estable a 33ms al volver al menu
-        if (timerAnimacion) {
-            timerAnimacion->start(33);
+        // reproduccion automatica al regresar al menu principal
+        if (animacionFondo) {
+            animacionFondo->start();
             actualizarFotogramaFondo();
         }
     }
 
     void MainWindow::actualizarBarraEstado() {
+
         QString mensaje = QString("Medicamentos: %1 | Clientes: %2").arg(sistema->getCantMedicamentos())
             .arg(sistema->getCantClientes());
 
@@ -297,22 +293,23 @@ namespace FarmaSystem {
     }
 
     void MainWindow::closeEvent(QCloseEvent* event) {
+
         sistema->guardarDatos();
         event->accept();
     }
 
     void MainWindow::resizeEvent(QResizeEvent* event) {
-        QMainWindow::resizeEvent(event); // Mantener comportamiento nativo
 
-        if (labelFondo && vistas) {
+        QMainWindow::resizeEvent(event);
+
+        if (labelFondo && animacionFondo) {
             labelFondo->setGeometry(100, 100, 400, 400);
-
-            EIF201::CargadorDatosUI::plasmarFotogramaFondo(labelFondo, fotogramaActual, 240);
+            animacionFondo->setScaledSize(QSize(400, 400));
         }
     }
 
     MainWindow::~MainWindow() {
-        // Qt gestiona la memoria de los elementos hijos automaticamente
+        // Al heredar de QMainWindow, Qt se encarga del ciclo de vida del GIF automaticamente
     }
 
 } // namespace FarmaSystem

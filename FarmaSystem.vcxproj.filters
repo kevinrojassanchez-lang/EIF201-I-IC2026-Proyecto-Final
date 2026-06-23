@@ -70,7 +70,10 @@
     <ClCompile Include="ValidadorCentral.cpp">
       <Filter>Cpp files</Filter>
     </ClCompile>
-    <ClCompile Include="cargadorDatosUI.cpp" />
+    <ClCompile Include="cargadorDatosUI.cpp">
+      <Filter>Cpp files</Filter>
+    </ClCompile>
+    <ClCompile Include="ArchivoCarga.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Cliente.h">
@@ -130,7 +133,10 @@
     <ClInclude Include="ValidadorCentral.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="cargadorDatosUI.h" />
+    <ClInclude Include="cargadorDatosUI.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="ArchivoCarga.h" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="CategoriasView.h">

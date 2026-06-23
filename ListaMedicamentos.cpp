@@ -18,7 +18,7 @@ namespace FarmaSystem {
 
         NodoMedicamento* nuevo = new NodoMedicamento(med);
 
-        if (cabeza == nullptr) {
+        if (cabeza == nullptr) { 
 
             cabeza = nuevo;
             cola = nuevo;

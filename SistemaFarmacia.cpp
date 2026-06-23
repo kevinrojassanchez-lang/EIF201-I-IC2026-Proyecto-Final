@@ -1,4 +1,5 @@
 #include "SistemaFarmacia.h"
+#include "ArchivoCarga.h"
 #include "MedicamentoGenerico.h"
 #include "MedicamentoMarca.h"
 #include "MedicamentoControlado.h"
@@ -60,191 +61,158 @@ namespace FarmaSystem {
     void SistemaFarmacia::setDatosCargados(bool estado) { datosCargados = estado; }
 
     void SistemaFarmacia::cargarProveedores() {
-        std::ifstream archivoProveedores("datos/proveedores.txt");
-        if (!archivoProveedores.is_open()) { return; }
+
+        std::ifstream archivo("datos/proveedores.txt");
+
+        if (!archivo.is_open()) { return; }
 
         proveedoresAceptados = 0;
         proveedoresDescartados = 0;
+
         std::string linea = "";
 
-        while (std::getline(archivoProveedores, linea)) {
+        while (std::getline(archivo, linea)) {
 
             if (linea == "") { proveedoresDescartados++; }
 
             else {
 
-                try {
-                    std::stringstream ss(linea);
-                    std::string idStr, nombre, telefono, email, pais;
-                    std::getline(ss, idStr, '|');
-                    std::getline(ss, nombre, '|');
-                    std::getline(ss, telefono, '|');
-                    std::getline(ss, email, '|');
-                    std::getline(ss, pais, '|');
+                Proveedor* proveedor = ArchivoCarga::crearProveedor(linea);
 
-                    int id = ValidadorCentral::validarYConvertirEntero(idStr);
+                if (proveedor != nullptr) {
 
-                    cargarProveedorDesdeArchivo(id, nombre, telefono, email, pais);
-
+                    cargarProveedorDesdeArchivo(proveedor);
                     proveedoresAceptados++;
                 }
-                catch (...) { proveedoresDescartados++; }
+
+                else { proveedoresDescartados++; }
             }
         }
-        archivoProveedores.close();
+        archivo.close();
     }
 
     void SistemaFarmacia::cargarMedicamentos() {
-        std::ifstream archivoMedicamentos("datos/medicamentos.txt");
-        if (!archivoMedicamentos.is_open()) { return; }
+
+        std::ifstream archivo("datos/medicamentos.txt");
+
+        if (!archivo.is_open()) { return; }
 
         medicamentosAceptados = 0;
         medicamentosDescartados = 0;
+
         std::string linea = "";
 
-        while (std::getline(archivoMedicamentos, linea)) {
+        while (std::getline(archivo, linea)) {
 
             if (linea == "") { medicamentosDescartados++; }
 
             else {
 
-                try {
-                    std::stringstream ss(linea);
-                    std::string tipoTexto, idStr, nombre, precioStr, stockStr, recetaStr, idProvStr, esp1, esp2;
-                    std::getline(ss, tipoTexto, '|');
-                    std::getline(ss, idStr, '|');
-                    std::getline(ss, nombre, '|');
-                    std::getline(ss, precioStr, '|');
-                    std::getline(ss, stockStr, '|');
-                    std::getline(ss, recetaStr, '|');
-                    std::getline(ss, idProvStr, '|');
+                Medicamento* medicamento = ArchivoCarga::crearMedicamento(linea);
 
-                    int id = ValidadorCentral::validarYConvertirEntero(idStr);
-                    double precio = ValidadorCentral::validarYConvertirDecimal(precioStr);
-                    int stock = ValidadorCentral::validarYConvertirEntero(stockStr);
-                    bool receta = ValidadorCentral::validarBanderaBinaria(recetaStr);
-                    int idProveedor = ValidadorCentral::validarYConvertirEntero(idProvStr);
+                if (medicamento != nullptr) {
 
-                    Medicamento* nuevoMed = nullptr;
-
-                    if (tipoTexto == "Generico") {
-                        std::getline(ss, esp1, '|');
-                        nuevoMed = new MedicamentoGenerico(id, nombre, precio, receta, stock, esp1, idProveedor);
-                    }
-                    else if (tipoTexto == "Marca") {
-                        std::getline(ss, esp1, '|');
-                        std::getline(ss, esp2, '|');
-                        bool promo = ValidadorCentral::validarBanderaBinaria(esp2);
-                        nuevoMed = new MedicamentoMarca(id, nombre, precio, receta, stock, esp1, promo, idProveedor);
-                    }
-                    else if (tipoTexto == "Controlado") {
-                        std::getline(ss, esp1, '|');
-                        std::getline(ss, esp2, '|');
-                        int nivel = ValidadorCentral::validarYConvertirEntero(esp1);
-                        double dosis = ValidadorCentral::validarYConvertirDecimal(esp2);
-                        nuevoMed = new MedicamentoControlado(id, nombre, precio, receta, stock, nivel, dosis, idProveedor);
-                    }
-
-                    if (nuevoMed != nullptr) {
-                        cargarMedicamentoDesdeArchivo(nuevoMed);
-                        medicamentosAceptados++;
-                    }
-                    else { medicamentosDescartados++; }
+                    cargarMedicamentoDesdeArchivo(medicamento);
+                    medicamentosAceptados++;
                 }
-                catch (...) { medicamentosDescartados++; }
+
+                else { medicamentosDescartados++; }
             }
         }
-        archivoMedicamentos.close();
+        archivo.close();
     }
 
     void SistemaFarmacia::cargarClientes() {
 
-        std::ifstream archivoClientes("datos/clientes.txt");
-        if (!archivoClientes.is_open()) { return; }
+        std::ifstream archivo("datos/clientes.txt");
+
+        if (!archivo.is_open()) { return; }
 
         clientesAceptados = 0;
         clientesDescartados = 0;
-        std::string linea = "";
 
-        while (std::getline(archivoClientes, linea)) {
+        std::string linea;
 
-            if (linea == "") { clientesDescartados++; }
+        while (std::getline(archivo, linea)) {
+
+            if (linea.empty()) { clientesDescartados++; }
 
             else {
 
-                try {
-                    std::stringstream ss(linea);
-                    std::string idStr, nombre, cedula, tarjetaStr;
-                    std::getline(ss, idStr, '|');
-                    std::getline(ss, nombre, '|');
-                    std::getline(ss, cedula, '|');
-                    std::getline(ss, tarjetaStr, '|');
+                Cliente* cliente = ArchivoCarga::crearCliente(linea);
 
-                    int id = ValidadorCentral::validarYConvertirEntero(idStr);
-                    bool tarjeta = ValidadorCentral::validarBanderaBinaria(tarjetaStr);
+                if (cliente != nullptr) {
 
-                    cargarClienteDesdeArchivo(id, nombre, cedula, tarjeta);
-
+                    cargarClienteDesdeArchivo(cliente);
                     clientesAceptados++;
                 }
-                catch (...) { clientesDescartados++; }
+
+                else { clientesDescartados++; }
             }
         }
-        archivoClientes.close();
+        archivo.close();
     }
 
     void SistemaFarmacia::cargarVentas() {
 
-        std::ifstream archivoVentas("datos/ventas.txt");
-        if (!archivoVentas.is_open()) { return; }
+        std::ifstream archivo("datos/ventas.txt");
+
+        if (!archivo.is_open()) { return; }
 
         ventasAceptadas = 0;
         ventasDescartadas = 0;
+
         std::string linea = "";
 
-        while (std::getline(archivoVentas, linea)) {
+        while (std::getline(archivo, linea)) {
 
             if (linea == "") { ventasDescartadas++; }
 
             else {
 
                 try {
+               
                     std::stringstream ss(linea);
-                    std::string idStr, idClienteStr, idMedStr, cantidadStr, totalStr, fecha;
-                    std::getline(ss, idStr, '|');
-                    std::getline(ss, idClienteStr, '|');
-                    std::getline(ss, idMedStr, '|');
-                    std::getline(ss, cantidadStr, '|');
-                    std::getline(ss, totalStr, '|');
-                    std::getline(ss, fecha, '|');
+                    std::string col1, col2, idMedStr;
 
-                    int id = ValidadorCentral::validarYConvertirEntero(idStr);
-                    int idCliente = ValidadorCentral::validarYConvertirEntero(idClienteStr);
+                    std::getline(ss, col1, '|');      // Salta ID Venta
+                    std::getline(ss, col2, '|');      // Salta ID Cliente
+                    std::getline(ss, idMedStr, '|');  // Captura ID Medicamento
+
                     int idMedicamento = ValidadorCentral::validarYConvertirEntero(idMedStr);
-                    int cantidad = ValidadorCentral::validarYConvertirEntero(cantidadStr);
-                    double precioFinal = ValidadorCentral::validarYConvertirDecimal(totalStr);
 
-                    Medicamento* med = listaMedicamentos.buscarPorId(idMedicamento);
-                    if (med == nullptr) { ventasDescartadas++; }
+                    // Buscamos el objeto en la ram
+                    Medicamento* medicamento = buscarMedicamentoPorID(idMedicamento);
+
+                    if (medicamento == nullptr) { ventasDescartadas++; }
+
                     else {
-                        cargarVentaDesdeArchivo(id, idCliente, idMedicamento, cantidad, precioFinal, fecha);
-                        ventasAceptadas++;
+                    
+                        Venta* venta = ArchivoCarga::crearVenta(linea, medicamento);
+
+                        if (venta != nullptr) {
+
+                            cargarVentaDesdeArchivo(venta);
+                            ventasAceptadas++;
+                        }
+
+                        else { ventasDescartadas++; }
                     }
                 }
                 catch (...) { ventasDescartadas++; }
             }
         }
-        archivoVentas.close();
+        archivo.close();
     }
 
     // Proveedores
-    void SistemaFarmacia::cargarProveedorDesdeArchivo(int id, const std::string& nombre, const std::string& telefono,
-        const std::string& email, const std::string& pais) {
+    void SistemaFarmacia::cargarProveedorDesdeArchivo(Proveedor* extraido) {
 
-        Proveedor* extraido = new Proveedor(id, nombre, telefono, email, pais);
+        if (extraido == nullptr) { return; }
+
         listaProveedores.agregar(extraido);
 
-        if (id >= nextIdProveedor) { nextIdProveedor = id + 1; }
+        if (extraido->getID() >= nextIdProveedor) { nextIdProveedor = extraido->getID() + 1; }
     }
 
     int SistemaFarmacia::registrarProveedor(const std::string& nombre, const std::string& telefono, const std::string& email,
@@ -303,6 +271,7 @@ namespace FarmaSystem {
     void SistemaFarmacia::cargarMedicamentoDesdeArchivo(Medicamento* extraido) {
 
         listaMedicamentos.agregar(extraido);
+
         if (extraido->getID() >= nextIdMedicamento) { nextIdMedicamento = extraido->getID() + 1; }
     }
 
@@ -472,16 +441,13 @@ namespace FarmaSystem {
     }
 
     // Clientes
-    void SistemaFarmacia::cargarClienteDesdeArchivo(int id, const std::string& nombre, const std::string& cedula,
-        bool tarjeta) {
+    void SistemaFarmacia::cargarClienteDesdeArchivo(Cliente* extraido) {
 
-        Cliente* nuevo = new Cliente(id, nombre, cedula);
+        if (extraido == nullptr) { return; }
 
-        nuevo->setTarjeta(tarjeta);
+        listaClientes.agregar(extraido);
 
-        listaClientes.agregar(nuevo);
-        if (id >= nextIdCliente) { nextIdCliente = id + 1; }
-
+        if (extraido->getID() >= nextIdCliente) { nextIdCliente =extraido->getID() + 1; }
     }
 
     int SistemaFarmacia::registrarCliente(const std::string& nombre, const std::string& cedula) {
@@ -540,39 +506,38 @@ namespace FarmaSystem {
     }
 
 	// Ventas
-    void SistemaFarmacia::cargarVentaDesdeArchivo(int id, int idCliente, int idMedicamento, int cantidad,
-        double precioFinal, const std::string& fecha) {
+    void SistemaFarmacia::cargarVentaDesdeArchivo(Venta* extraido) {
 
-        Medicamento* medicamento = listaMedicamentos.buscarPorId(idMedicamento);
-        if (medicamento == nullptr) { return; } // Si el medicamento no existe, no se puede cargar la venta
+        if (extraido == nullptr) { return; }
 
-        Venta* extraida = new Venta(id, idCliente, medicamento, cantidad, precioFinal, fecha);
+        listaVentas.agregar(extraido);
 
-        listaVentas.agregar(extraida);
-        if (id >= nextIdVenta) { nextIdVenta = id + 1; }
+        if (extraido->getId() >= nextIdVenta) { nextIdVenta = extraido->getId() + 1; }
     }
 
     int SistemaFarmacia::registrarVenta(const std::string& cedula, int idMed, int cantidad, bool presentoReceta,
         const std::string& fecha, bool confirmado) {
+
+        // Validaciones rapidas de estado de la UI primero que nada
+        if (!confirmado) { return 8; }
+        if (fecha.empty()) { return 4; }
+        if (cantidad <= 0) { return 3; }
 
         Cliente* clienteComprador = buscarClientePorCedula(cedula);
         Medicamento* medicamento = buscarMedicamentoPorID(idMed);
 
         if (clienteComprador == nullptr) { return 1; }
         if (medicamento == nullptr) { return 2; }
-        if (cantidad <= 0) { return 3; }
-        if (fecha == "") { return 4; }
         if (medicamento->getReceta() && !presentoReceta) { return 5; }
         if (medicamento->getStock() < cantidad) { return 6; }
         if (medicamento->excedeDosis(cantidad)) { return 7; }
-        if (!confirmado) { return 8; }
 
         double totalFinal = calcularTotalVenta(clienteComprador, medicamento, cantidad);
 
-        Venta* nuevaVenta = new Venta(nextIdVenta++, clienteComprador->getID(), medicamento, cantidad, 
-            totalFinal, fecha);
+        Venta* nuevaVenta = new Venta(nextIdVenta, clienteComprador->getID(), medicamento, cantidad, totalFinal, fecha);
 
         listaVentas.agregar(nuevaVenta);
+        nextIdVenta++;
 
         medicamento->setStock(medicamento->getStock() - cantidad);
 
@@ -619,9 +584,8 @@ namespace FarmaSystem {
     Proveedor* SistemaFarmacia::getProveedorPorIndice(int i) { return listaProveedores.obtener(i); }
 	
 	// Destructor
-    SistemaFarmacia::~SistemaFarmacia() {
+    SistemaFarmacia::~SistemaFarmacia() {}
 
         // Las listas enlazadas se encargan de liberar la memoria de sus nodos
-    }
-
+    
 } // namespaceFarmaSystem

@@ -1,2 +1,3 @@
 1|AstraZeneca|55555|Bayer_CRC@hotmail.com|Alemania
-2|Laboratorios Zepol S.A|88888|Zepolm@hotmail.com|Mexico
+2|Laboratorios Zepol S.A|55555555|Zepolm@hotmail.pa|Costa RIca
+3|lisan|99999999|lisan@lokk.com|Francia

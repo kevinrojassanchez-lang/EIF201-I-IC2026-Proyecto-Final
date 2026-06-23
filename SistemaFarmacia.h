@@ -56,8 +56,7 @@ namespace FarmaSystem {
         void setDatosCargados(bool estado);
 
         // Proveedores
-        void cargarProveedorDesdeArchivo(int id, const std::string& nombre,const std::string& telefono,
-            const std::string& email, const std::string& pais);
+        void cargarProveedorDesdeArchivo(Proveedor* extraido );
 
         int registrarProveedor(const std::string& nombre, const std::string& telefono,
             const std::string& email, const std::string& pais);
@@ -72,7 +71,7 @@ namespace FarmaSystem {
             const std::string& pais);
 
         // Medicamentos
-        void cargarMedicamentoDesdeArchivo(Medicamento* med);
+        void cargarMedicamentoDesdeArchivo(Medicamento* extraido);
 
         int registrarGenerico(const std::string& nombre, double precio,int stock, const std::string& principio, int idProveedor,
             bool receta);
@@ -106,7 +105,7 @@ namespace FarmaSystem {
         Medicamento* obtenerMasVendido();
 
         // Clientes
-        void cargarClienteDesdeArchivo(int id, const std::string& nombre, const std::string& cedula, bool tarjeta);
+        void cargarClienteDesdeArchivo(Cliente* extraido);
 
         int registrarCliente(const std::string& nombre, const std::string& cedula);
 
@@ -121,8 +120,7 @@ namespace FarmaSystem {
         Cliente* obtenerClienteVIP();
 
         // Ventas
-        void cargarVentaDesdeArchivo(int id, int idCliente, int idMedicamento, int cantidad, double precioFinal,
-            const std::string& fecha);
+        void cargarVentaDesdeArchivo(Venta* extraido);
 
         int registrarVenta(const std::string& cedula, int idMed, int cant, bool presentoReceta, const std::string& fecha,
             bool confirmado);
